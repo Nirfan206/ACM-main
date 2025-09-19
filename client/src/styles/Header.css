@@ -1,0 +1,104 @@
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--color-white); /* Changed to white for light theme */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between logo image and text */
+}
+
+.company-logo {
+  height: 50px; /* Adjust size as needed */
+  width: auto;
+  border-radius: 8px; /* Slightly rounded corners for the logo */
+}
+
+.logo-text-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.company-name {
+  font-weight: bold;
+  color: var(--color-primary);
+  font-size: 2rem; /* Larger font size for company name */
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+
+.company-tagline {
+  font-size: 0.9rem; /* Slightly larger tagline */
+  color: var(--color-textLight);
+}
+
+.main-nav {
+  display: flex;
+  gap: 25px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--color-dark); /* Changed to dark for better contrast on light header */
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 5px 0;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-secondary); /* Hover color */
+}
+
+.nav-link.active {
+  color: var(--color-primary); /* Active link color */
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-primary); /* Underline color for active link */
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    flex-direction: column;
+    padding: 10px;
+  }
+  
+  .logo-container {
+    margin-bottom: 10px;
+    flex-direction: row; /* Keep logo and text in a row on small screens */
+    align-items: center;
+  }
+
+  .company-name {
+    font-size: 1.5rem; /* Adjust for smaller screens */
+  }
+  
+  .main-nav {
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

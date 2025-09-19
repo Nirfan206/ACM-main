@@ -1,0 +1,2 @@
+# This file is here to ensure the 'uploads' directory is created and tracked by Git.
+# Multer will temporarily store uploaded files here before they are sent to Cloudinary.

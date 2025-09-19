@@ -1,0 +1,569 @@
+/* client/src/styles/global.css */
+
+/* Import Google Font (Inter) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body, h1, h2, h3, h4, p, figure, blockquote, dl, dd { margin: 0; }
+ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
+img, picture, video, canvas, svg { display: block; max-width: 100%; }
+input, button, textarea, select { font: inherit; }
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* Global Theme Variables */
+:root {
+  --font-main: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  
+  /* Core Colors (Red, Green, Yellow, Blue, Black) */
+  --color-primary: #4CAF50;    /* Green */
+  --color-secondary: #2196F3;  /* Blue */
+  --color-accent: #FFC107;     /* Yellow/Amber */
+  --color-success: #4CAF50;    /* Success green (same as primary for consistency) */
+  --color-error: #F44336;      /* Error red */
+  --color-info: #2196F3;       /* Info blue (same as secondary for consistency) */
+  --color-warning: #FFC107;    /* Warning yellow (same as accent for consistency) */
+  --color-danger: #F44336;     /* Danger red (same as error for consistency) */
+
+  /* Backgrounds & Text */
+  --color-light: #fcfcfc;      /* Very light background */
+  --color-dark: #212121;       /* Very dark gray, almost black */
+  --color-text: #424242;       /* Dark gray for general text */
+  --color-textLight: #757575;  /* Medium gray for lighter text/muted color */
+  --color-white: #ffffff;      /* Pure white */
+
+  /* Component Specific */
+  --bg: var(--color-light);
+  --fg: var(--color-text);
+  --muted: var(--color-textLight);
+  --border: #e0e0e0; /* Lighter border */
+  --card: var(--color-white);
+  --primary: var(--color-primary); /* Legacy alias */
+  --primary-ink: var(--color-white); /* Text on primary background */
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --radius: 12px;
+
+  /* Dashboard specific aliases (for existing dashboard.css usage) */
+  --primary-color: var(--color-primary);
+  --primary-light: #e8f5e9; /* Specific light variant for green */
+  --secondary-color: var(--color-secondary);
+  --success-color: var(--color-success);
+  --warning-color: var(--color-warning);
+  --danger-color: var(--color-danger);
+  --info-color: var(--color-info);
+  --text-dark: var(--color-dark);
+  --text-light: var(--color-textLight);
+  --background-light: var(--color-light);
+  --card-background: var(--color-white);
+  --border-color: var(--border);
+  --font-family: var(--font-main);
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+}
+
+/* Typography */
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-main);
+  font-size: 16px;
+  line-height: 1.6;
+}
+h1, h2, h3, h4 { font-weight: 600; }
+
+/* Sidebar */
+.sidebar {
+  background: var(--color-dark); /* Using new dark color */
+  color: var(--color-white); /* Light text for dark sidebar */
+  padding: 20px;
+  min-height: 100vh;
+  font-family: var(--font-main);
+}
+.sidebar a {
+  color: inherit;
+  display: block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+.sidebar a:hover,
+.sidebar a.active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Card (Profile + Dashboard Panels) */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+/* Form Elements */
+label {
+  display: block;
+  font-weight: 600;
+  color: var(--fg); /* Changed to fg for better contrast */
+  margin-bottom: 6px;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--color-white);
+  color: var(--fg);
+  font-size: 15px;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); /* Adjusted shadow color to primary green */
+  outline: none;
+}
+
+/* Buttons */
+button, .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: var(--font-main);
+  transition: background-color 0.3s ease;
+}
+.card .btn-primary {
+  background-color: var(--primary) !important;
+  color: var(--primary-ink) !important;
+}
+.card .btn-primary:hover {
+  background-color: #388E3C !important; /* Darker green */
+}
+.card .btn-warning {
+  background-color: var(--color-warning) !important;
+  color: var(--color-dark) !important; /* Dark text for yellow background */
+}
+.card .btn-warning:hover {
+  background-color: #FFB300 !important; /* A darker yellow */
+}
+.card .btn-danger {
+  background-color: var(--color-danger) !important;
+  color: var(--color-white) !important;
+}
+.card .btn-danger:hover {
+  background-color: #D32F2F !important; /* A darker red */
+}
+.card .btn-outline {
+  background-color: transparent !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-text) !important;
+}
+.card .btn-outline:hover {
+  background-color: var(--color-light) !important;
+}
+.card .btn-accent {
+  background-color: var(--color-accent) !important;
+  color: var(--color-dark) !important; /* Dark text for yellow background */
+}
+.card .btn-accent:hover {
+  background-color: #FFB300 !important; /* A darker yellow */
+}
+.card .btn-secondary {
+  background-color: var(--color-secondary) !important;
+  color: var(--color-white) !important;
+}
+.card .btn-secondary:hover {
+  background-color: #1976D2 !important; /* A darker blue */
+}
+.card .btn-success {
+  background-color: var(--color-success) !important;
+  color: var(--color-white) !important;
+}
+.card .btn-success:hover {
+  background-color: #388E3C !important; /* A darker green */
+}
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  border-radius: 6px;
+}
+.btn-disabled {
+  background-color: var(--color-textLight) !important;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+
+/* Fix for Profile Section */
+.profile-container .card {
+  background: var(--card);
+  color: var(--fg);
+}
+.profile-container label {
+  color: var(--fg);
+}
+.profile-container input,
+.profile-container textarea {
+  background: var(--card);
+  color: var(--fg);
+}
+
+/* Dashboard specific styles (moved from dashboard.css) */
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 250px 1fr; /* Sidebar and main content */
+  min-height: 100vh;
+}
+
+.main-content {
+  padding: 20px;
+  background-color: var(--background-light);
+  display: flex;
+  flex-direction: column;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.sidebar-logo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.sidebar-logo a {
+  color: var(--color-white); /* Changed to white for dark background */
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav li {
+  margin-bottom: 10px;
+}
+
+.sidebar-nav a {
+  display: block;
+  padding: 10px 15px;
+  color: var(--color-white); /* Changed to white for dark background */
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar-nav a.active,
+.sidebar-nav a:hover {
+  background-color: var(--primary-color);
+}
+
+.card-title {
+  font-size: 1.5rem; /* Adjusted for consistency */
+  font-weight: bold;
+  margin-bottom: 1.5rem; /* Adjusted for consistency */
+  color: var(--color-primary); /* Using core color variable */
+}
+
+.card-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--text-dark);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+/* New styles for form actions */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.form-actions-group {
+  display: flex;
+  gap: 10px;
+}
+
+/* New styles for password reset section */
+.password-reset-section {
+  margin-top: 2rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+/* New styles for service history section */
+.service-history-section {
+  margin-top: 2rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+/* New styles for data tables */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius);
+  overflow: hidden; /* Ensures rounded corners for table */
+}
+
+.data-table th, .data-table td {
+  border: 1px solid var(--border);
+  padding: 10px;
+  text-align: left;
+  color: var(--color-text);
+}
+
+.data-table thead tr {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.data-table tbody tr:nth-child(even) {
+  background-color: var(--color-light);
+}
+
+.data-table tbody tr:hover {
+  background-color: #f0f0f0;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-white); /* Default to white, overridden below */
+  display: inline-block;
+}
+
+.status-pending {
+  background-color: var(--color-warning);
+  color: var(--color-dark) !important; /* Changed to dark text for visibility on yellow background */
+}
+
+.status-in-progress {
+  background-color: var(--color-secondary);
+  color: var(--color-white) !important; /* Ensure white text on blue */
+}
+
+.status-completed {
+  background-color: var(--color-success);
+  color: var(--color-white) !important; /* Ensure white text on green */
+}
+
+.status-cancelled {
+  background-color: var(--color-error);
+  color: var(--color-white) !important; /* Ensure white text on red */
+}
+
+/* NEW: Style for 'Completed - Awaiting Admin Confirmation' */
+.status-completed-awaiting-admin-confirmation {
+  background-color: var(--color-accent); /* Use accent color for this intermediate status */
+  color: var(--color-dark) !important; /* Dark text for visibility */
+}
+
+
+/* Specific overrides for employee status to be black */
+.status-badge.status-warning { /* For 'free' status */
+  color: var(--color-dark) !important;
+}
+
+.status-badge.status-success { /* For 'working' status */
+  color: var(--color-dark) !important;
+  background-color: var(--color-success); /* Keep the green background */
+}
+
+
+/* Status messages for forms */
+.status-message {
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.status-message.success {
+  background-color: var(--color-success);
+  color: var(--color-white);
+}
+
+.status-message.error {
+  background-color: var(--color-error);
+  color: var(--color-white);
+}
+
+/* Admin Page Specific Styles */
+.admin-page-container {
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+.page-title {
+  color: var(--color-primary);
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.tab-nav {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tab-button {
+  padding: 8px 16px;
+  background: var(--color-light);
+  color: var(--color-text);
+  border: 1px solid var(--color-primary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tab-button.active {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.tab-button:hover:not(.active) {
+  background-color: var(--primary-light);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--color-white);
+  padding: 20px;
+  border-radius: var(--radius);
+  width: 400px;
+  max-width: 90%;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-title {
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.p-8 {
+  padding: 2rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mt-8 {
+  margin-top: 2rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem; /* 24px */
+}
+
+.text-xl {
+  font-size: 1.25rem; /* 20px */
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.text-secondary {
+  color: var(--color-secondary);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-accent {
+  color: var(--color-accent);
+}
+
+.text-dark {
+  color: var(--color-dark);
+}
+
+.text-light {
+  color: var(--color-textLight);
+}
+
+.bg-light {
+  background-color: var(--color-white);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto; /* Override 100% width for checkboxes */
+  margin-right: 8px;
+}
