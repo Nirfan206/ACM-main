@@ -4,7 +4,8 @@ import CareRequests from './customercare/CareRequests';
 import CareMessaging from './customercare/CareMessaging';
 import CareCustomers from './customercare/CareCustomers';
 import CustomerCareProfile from './customercare/CustomerCareProfile';
-import CareEmployeeAvailability from './customercare/CareEmployeeAvailability'; // NEW: Import CareEmployeeAvailability
+import CareEmployeeAvailability from './customercare/CareEmployeeAvailability';
+import CareBookService from './customercare/CareBookService'; // NEW: Import CareBookService
 
 function CustomerCareDashboard() {
   const location = useLocation();
@@ -42,6 +43,14 @@ function CustomerCareDashboard() {
             </li>
             <li>
               <Link
+                to="book-service" // NEW: Link for booking a service
+                className={location.pathname.includes('book-service') ? 'active' : ''}
+              >
+                Book a Service
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="messaging"
                 className={location.pathname.includes('messaging') ? 'active' : ''}
               >
@@ -67,6 +76,7 @@ function CustomerCareDashboard() {
             <Route path="profile" element={<CustomerCareProfile />} />
             <Route path="requests" element={<CareRequests />} />
             <Route path="customers" element={<CareCustomers />} />
+            <Route path="book-service" element={<CareBookService />} /> {/* NEW: Route for booking a service */}
             <Route path="messaging" element={<CareMessaging />} />
             <Route path="employee-availability" element={<CareEmployeeAvailability />} />
           </Routes>

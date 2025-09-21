@@ -6,7 +6,7 @@ import { logout } from '../../utils/authUtils'; // Import logout utility
 function AdminAnalytics() {
   const [analyticsData, setAnalyticsData] = useState({
     totalBookings: 0,
-    totalRevenue: 0,
+    // totalRevenue: 0, // Removed
     employeePerformance: [],
   });
   const [loading, setLoading] = useState(true);
@@ -76,13 +76,14 @@ function AdminAnalytics() {
           <p className="text-2xl font-bold text-secondary">{analyticsData.totalBookings}</p>
         </div>
 
-        <div className="card text-center bg-light">
+        {/* Removed Total Revenue Card */}
+        {/* <div className="card text-center bg-light">
           <h4>Total Revenue</h4>
           <p className="text-2xl font-bold text-primary">₹{analyticsData.totalRevenue.toFixed(2)}</p>
-        </div>
+        </div> */}
 
         <div className="card text-center bg-light">
-          <h4>Top Employee</h4>
+          <h4>Top Employee (by jobs)</h4> {/* Updated title */}
           <p className="text-xl font-bold text-accent">
             {topEmployee.name} ({topEmployee.jobsCompleted} jobs)
           </p>
@@ -90,7 +91,7 @@ function AdminAnalytics() {
       </div>
 
       <div className="mt-8">
-        <h4 className="mb-4 text-dark">Employee Performance</h4>
+        <h4 className="mb-4 text-dark">Employee Performance (Job Counts)</h4> {/* Updated title */}
         {analyticsData.employeePerformance.length === 0 ? (
           <p className="text-center text-light">No employee performance data available.</p>
         ) : (
@@ -99,7 +100,7 @@ function AdminAnalytics() {
               <tr>
                 <th>Employee Name</th>
                 <th>Jobs Completed</th>
-                <th>Working Status</th> {/* New column for working status */}
+                <th>Working Status</th>
               </tr>
             </thead>
             <tbody>

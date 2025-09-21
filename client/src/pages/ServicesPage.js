@@ -68,11 +68,11 @@ function ServicesPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <header style={{position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 1000, background: themeWhite, boxShadow: '0 2px 8px rgba(0,0,0,0.08)'}}>
+      <header style={{position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 1000, background: 'var(--color-white)', boxShadow: '0 2px 8px rgba(0,0,0,0.08)'}}>
         <nav style={{display:'flex',justifyContent:'center',gap:'32px',fontWeight:'bold',fontSize:'1.1rem', padding: '1rem 0'}}>
           <Link to="/" style={{textDecoration:'none',color:themeRed}}>Home</Link>
           <Link to="/services" style={{textDecoration:'none',color:themeYellow}}>Services</Link>
-          <Link to="/reviews" style={{textDecoration:'none',color:themeRed}}>Reviews</Link>
+          
           <Link to="/login" style={{textDecoration:'none',color:themeRed}}>Login</Link>
           <Link to="/register" style={{textDecoration:'none',color:themeGreen}}>Register</Link>
         </nav>
@@ -128,6 +128,9 @@ function ServicesPage() {
           </div>
           <div style={{ marginBottom: '0.5rem' }}>
             <span style={{ fontWeight: 'bold' }}>Owner:</span> Shaik Mohammad Rafi
+          </div>
+          <div style={{ marginBottom: '0.5rem' }}>
+            <span style={{ fontWeight: 'bold' }}>Customer Care Number:</span> 9966972228
           </div>
           <div style={{ marginBottom: '0.5rem' }}>
             <a href="/privacy" style={{ color: '#fff', textDecoration: 'underline', marginRight: '1rem' }}>Privacy Policy</a>

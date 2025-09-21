@@ -76,22 +76,29 @@ async function seed() {
       {
         type: 'AC Repair',
         description: 'Air conditioner repair and maintenance',
-        price: 500,
         category: 'AC',
+        imageUrl: '/ac 1.jpeg', // Added image URL
         status: 'active',
       },
       {
         type: 'Fridge Repair',
         description: 'Refrigerator service',
-        price: 400,
         category: 'Fridge',
+        imageUrl: '/fridge 1.jpeg', // Added image URL
         status: 'active',
       },
       {
         type: 'Plumbing',
         description: 'Plumbing services',
-        price: 300,
         category: 'Plumbing',
+        imageUrl: '/a i o.jpeg', // Placeholder image URL
+        status: 'active',
+      },
+      {
+        type: 'Washing Machine Repair',
+        description: 'Washing machine repair and maintenance',
+        category: 'Washing Machine',
+        imageUrl: '/wm 1.jpeg', // Added image URL
         status: 'active',
       },
     ]);
@@ -106,14 +113,8 @@ async function seed() {
         date: new Date(),
         time: '10:00',
         address: '123 Main St',
-        status: 'Completed', // This will be the final status after admin confirmation
-        payment: {
-          amount: 550, // Final amount after admin confirmation
-          method: 'cash',
-          status: "paid", 
-        },
-        finalAmount: 550, // NEW: Example final amount
-        adminConfirmed: true, // NEW: Example admin confirmed
+        status: 'Completed', 
+        adminConfirmed: true, 
       },
       {
         service: services[1]._id,
@@ -122,14 +123,8 @@ async function seed() {
         date: new Date(new Date().setDate(new Date().getDate() + 1)), // Tomorrow
         time: '14:00',
         address: '123 Main St',
-        status: 'Completed - Awaiting Admin Confirmation', // NEW: Status awaiting admin
-        payment: {
-          amount: 0, // Initial payment amount is 0 until admin confirms
-          method: 'online',
-          status: "pending", 
-        },
-        finalAmount: 0, // NEW: No final amount yet
-        adminConfirmed: false, // NEW: Not yet confirmed by admin
+        status: 'Completed - Awaiting Admin Confirmation', 
+        adminConfirmed: false, 
       },
       {
         service: services[2]._id,
@@ -138,13 +133,7 @@ async function seed() {
         date: new Date(new Date().setDate(new Date().getDate() - 2)), // Two days ago
         time: '09:00',
         address: '123 Main St',
-        status: 'In Progress', // Still in progress
-        payment: {
-          amount: 0,
-          method: 'Not Paid',
-          status: "pending", 
-        },
-        finalAmount: 0,
+        status: 'In Progress', 
         adminConfirmed: false,
       },
     ]);

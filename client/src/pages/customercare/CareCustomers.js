@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api/customercare/customers';
@@ -132,42 +132,47 @@ function CareCustomers() {
       {error && <div className="status-message error">{error}</div>}
       {success && <div className="status-message success">{success}</div>}
 
-      <button onClick={() => openModal()} className="btn btn-accent mb-4">
-        ➕ Add New Customer
-      </button>
+      <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '1rem' }}>
+        <button onClick={() => openModal()} className="btn btn-accent">
+          ➕ Add New Customer
+        </button>
+      </div>
 
-      {loading ? (
-        <p className="text-center">Loading customers...</p>
-      ) : customers.length === 0 ? (
-        <p className="text-center">No customers found.</p>
-      ) : (
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map(customer => (
-              <tr key={customer._id}>
-                <td>{customer.profile?.name || 'N/A'}</td>
-                <td>{customer.phone || 'N/A'}</td>
-                <td>{customer.profile?.email || 'N/A'}</td>
-                <td>{customer.profile?.address || 'N/A'}</td>
-                <td>
-                  <button onClick={() => openModal(customer)} className="btn btn-secondary btn-sm">
-                    Edit
-                  </button>
-                </td>
+      {/* Customers Table */}
+      <div>
+        {loading ? (
+          <p className="text-center">Loading customers...</p>
+        ) : customers.length === 0 ? (
+          <p className="text-center">No customers found.</p>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Address</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {customers.map(customer => (
+                <tr key={customer._id}>
+                  <td>{customer.profile?.name || 'N/A'}</td>
+                  <td>{customer.phone || 'N/A'}</td>
+                  <td>{customer.profile?.email || 'N/A'}</td>
+                  <td>{customer.profile?.address || 'N/A'}</td>
+                  <td>
+                    <button onClick={() => openModal(customer)} className="btn btn-secondary btn-sm">
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
       {showModal && (
         <div className="modal-overlay">

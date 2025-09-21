@@ -10,6 +10,10 @@ import EmployeeDashboard from './pages/EmployeeDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import CustomerCareDashboard from './pages/CustomerCareDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage'; // NEW: Import PrivacyPolicyPage
+import TermsConditionsPage from './pages/TermsConditionsPage'; // NEW: Import TermsConditionsPage
+import CareRequests from "./pages/customercare/CareRequests";
+import ReactToPrint from "react-to-print";
 
 function App() {
   return (
@@ -20,6 +24,8 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} /> {/* NEW: Privacy Policy Route */}
+      <Route path="/terms-conditions" element={<TermsConditionsPage />} /> {/* NEW: Terms & Conditions Route */}
 
       {/* Customer Routes */}
       <Route

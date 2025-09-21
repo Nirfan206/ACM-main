@@ -13,20 +13,18 @@ const Header = () => {
   return (
     <header className="main-header">
       <div className="header-container">
-        <div className="logo-container">
-          <Link to="/" className="logo-link">
-            <img src="/logo.jpg" alt="AL CHAAN MEERA Logo" className="company-logo" />
-            <div className="logo-text-container">
-              <span className="company-name">AL CHAAN MEERA</span>
-              <span className="company-tagline">(Air Conditioning & Maintenance Company)</span>
-            </div>
-          </Link>
-        </div>
+        <Link to="/" className="logo-link"> {/* Made logo-link the flex container */}
+          <img src="/logo.jpg" alt="AL CHAAN MEERA Logo" className="company-logo" />
+          <div className="logo-text-container">
+            <span className="company-name">AL CHAAN MEERA</span>
+            <span className="company-tagline">(Air Conditioning & Maintenance Company)</span>
+          </div>
+        </Link>
         
         <nav className="main-nav">
           <Link to="/" className={`nav-link ${isActive('/')}`}>Home</Link>
           <Link to="/services" className={`nav-link ${isActive('/services')}`}>Services</Link>
-          <Link to="/reviews" className={`nav-link ${isActive('/reviews')}`}>Reviews</Link>
+          <Link to="/reviews" className={`nav-link ${isActive('/reviews')}`}>Reviews</Link> {/* NEW: Reviews Link */}
           <Link to="/login" className={`nav-link ${isActive('/login')}`}>Login</Link>
           <Link to="/register" className={`nav-link ${isActive('/register')}`}>Register</Link>
         </nav>

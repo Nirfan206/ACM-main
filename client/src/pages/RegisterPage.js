@@ -114,7 +114,7 @@ function RegisterPage() {
         {location === "Other" && (
           <div style={{ color: "var(--color-error)", marginBottom: 12 }}>
             Service available only in Guntur, Prakasam & Palanadu.  
-            Please call us directly at <b>+91-9266856088</b> or <b>+91-9910922088</b>.
+            Please call our Customer Care directly at <b>+91-9966972228</b> or <b>+91-6305320364</b>.
           </div>
         )}
 

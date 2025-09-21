@@ -17,10 +17,11 @@
   margin: 0 auto;
 }
 
-.logo-container {
+.logo-link { /* NEW: Make logo-link a flex container */
   display: flex;
   align-items: center;
   gap: 10px; /* Space between logo image and text */
+  text-decoration: none; /* Remove underline from link */
 }
 
 .company-logo {
@@ -42,9 +43,10 @@
   line-height: 1.2;
 }
 
-.company-tagline {
+/* More specific selector for the tagline to ensure color override */
+.logo-link .logo-text-container .company-tagline {
   font-size: 0.9rem; /* Slightly larger tagline */
-  color: var(--color-textLight);
+  color: var(--color-textLight) !important; /* Added !important to ensure correct color */
 }
 
 .main-nav {
@@ -86,9 +88,9 @@
     padding: 10px;
   }
   
-  .logo-container {
+  .logo-link { /* Ensure logo-link remains row on small screens */
     margin-bottom: 10px;
-    flex-direction: row; /* Keep logo and text in a row on small screens */
+    flex-direction: row; 
     align-items: center;
   }
 

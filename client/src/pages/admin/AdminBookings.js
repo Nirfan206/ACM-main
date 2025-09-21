@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,7 +13,7 @@ function AdminBookings() {
   const [assignEmployeeId, setAssignEmployeeId] = useState('');
   const [bookingStatusUpdate, setBookingStatusUpdate] = useState('');
   const [bookingNotes, setBookingNotes] = useState('');
-  const [finalAmountInput, setFinalAmountInput] = useState(''); // NEW: State for final amount input
+  // const [finalAmountInput, setFinalAmountInput] = useState(''); // Removed: State for final amount input
 
   const navigate = useNavigate();
 
@@ -74,7 +74,7 @@ function AdminBookings() {
     setAssignEmployeeId(booking.employee?._id || '');
     setBookingStatusUpdate(booking.status);
     setBookingNotes(booking.notes || '');
-    setFinalAmountInput(booking.finalAmount > 0 ? booking.finalAmount.toString() : ''); // Pre-fill final amount
+    // setFinalAmountInput(booking.finalAmount > 0 ? booking.finalAmount.toString() : ''); // Removed: Pre-fill final amount
     setShowModal(true);
   };
 
@@ -110,21 +110,21 @@ function AdminBookings() {
       return;
     }
 
-    // Validation for final amount if status is 'Completed'
-    if (bookingStatusUpdate === 'Completed') {
-      if (finalAmountInput === '' || isNaN(Number(finalAmountInput)) || Number(finalAmountInput) <= 0) {
-        setError('Final amount must be a positive number when marking as Completed.');
-        setTimeout(() => setError(''), 5000);
-        return;
-      }
-    }
+    // Removed: Validation for final amount if status is 'Completed'
+    // if (bookingStatusUpdate === 'Completed') {
+    //   if (finalAmountInput === '' || isNaN(Number(finalAmountInput)) || Number(finalAmountInput) <= 0) {
+    //     setError('Final amount must be a positive number when marking as Completed.');
+    //     setTimeout(() => setError(''), 5000);
+    //     return;
+    //   }
+    // }
 
     try {
       const token = sessionStorage.getItem('token');
       await axios.put(`http://localhost:5000/api/admin/bookings/${selectedBooking._id}/status`, {
         status: bookingStatusUpdate,
         notes: bookingNotes.trim(),
-        finalAmount: bookingStatusUpdate === 'Completed' ? Number(finalAmountInput) : undefined, // Only send if status is 'Completed'
+        // finalAmount: bookingStatusUpdate === 'Completed' ? Number(finalAmountInput) : undefined, // Removed: Only send if status is 'Completed'
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -172,63 +172,66 @@ function AdminBookings() {
       {success && <div className="status-message success">{success}</div>}
       {error && <div className="status-message error">{error}</div>}
 
-      {bookings.length === 0 ? (
-        <p className="text-center text-light">No bookings found.</p>
-      ) : (
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Booking ID</th>
-              <th>Customer</th>
-              <th>Service</th>
-              <th>Date & Time</th>
-              <th>Status</th>
-              <th>Final Amount</th> {/* NEW: Final Amount column */}
-              <th>Assigned Employee</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((booking) => (
-              <tr key={booking._id}>
-                <td>{booking._id.substring(0, 8)}</td>
-                <td>
-                  {booking.user?.profile?.name || 'N/A'}
-                  <br />
-                  <a href={`tel:${booking.user?.phone}`} className="text-secondary">
-                    {booking.user?.phone || 'N/A'}
-                  </a>
-                  <br />
-                  <small>{booking.user?.profile?.address || 'N/A'}</small>
-                </td>
-                <td>{booking.service?.type || 'N/A'}</td>
-                <td>{formatDate(booking.date)} at {booking.time}</td>
-                <td>
-                  <span className={`status-badge status-${booking.status.toLowerCase().replace(' ', '-').replace('awaiting-admin-confirmation', 'pending')}`}>
-                    {booking.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
-                  </span>
-                </td>
-                <td>
-                  {booking.status === 'Completed' && booking.adminConfirmed ? (
-                    `₹${booking.finalAmount.toFixed(2)}`
-                  ) : (
-                    'N/A'
-                  )}
-                </td>
-                <td>{booking.employee?.profile?.name || 'Not Assigned'}</td>
-                <td>
-                  <button
-                    onClick={() => openManageModal(booking)}
-                    className="btn btn-secondary btn-sm"
-                  >
-                    Manage
-                  </button>
-                </td>
+      {/* Bookings Table */}
+      <div>
+        {bookings.length === 0 ? (
+          <p className="text-center text-light">No bookings found.</p>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Booking ID</th>
+                <th>Customer</th>
+                <th>Service</th>
+                <th>Date & Time</th>
+                <th>Status</th>
+                {/* <th>Final Amount</th> */} {/* Removed Final Amount column */}
+                <th>Assigned Employee</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {bookings.map((booking) => (
+                <tr key={booking._id}>
+                  <td>{booking._id.substring(0, 8)}</td>
+                  <td>
+                    {booking.user?.profile?.name || 'N/A'}
+                    <br />
+                    <a href={`tel:${booking.user?.phone}`} className="text-secondary">
+                      {booking.user?.phone || 'N/A'}
+                    </a>
+                    <br />
+                    <small>{booking.user?.profile?.address || 'N/A'}</small>
+                  </td>
+                  <td>{booking.service?.type || 'N/A'}</td>
+                  <td>{formatDate(booking.date)} at {booking.time}</td>
+                  <td>
+                    <span className={`status-badge status-${booking.status.toLowerCase().replace(' ', '-').replace('awaiting-admin-confirmation', 'pending')}`}>
+                      {booking.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
+                    </span>
+                  </td>
+                  {/* <td>
+                    {booking.status === 'Completed' && booking.adminConfirmed ? (
+                      `₹${booking.finalAmount.toFixed(2)}`
+                    ) : (
+                      'N/A'
+                    )}
+                  </td> */} {/* Removed Final Amount display */}
+                  <td>{booking.employee?.profile?.name || 'Not Assigned'}</td>
+                  <td>
+                    <button
+                      onClick={() => openManageModal(booking)}
+                      className="btn btn-secondary btn-sm"
+                    >
+                      Manage
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
       {/* Booking Management Modal */}
       {showModal && selectedBooking && (
@@ -244,9 +247,9 @@ function AdminBookings() {
               <p><strong>Current Status:</strong> {selectedBooking.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}</p>
               <p><strong>Assigned Employee:</strong> {selectedBooking.employee?.profile?.name || 'Not Assigned'}</p>
               <p><strong>Notes:</strong> {selectedBooking.notes || 'N/A'}</p>
-              {selectedBooking.status === 'Completed' && selectedBooking.adminConfirmed && (
+              {/* {selectedBooking.status === 'Completed' && selectedBooking.adminConfirmed && (
                 <p><strong>Final Amount:</strong> ₹{selectedBooking.finalAmount.toFixed(2)}</p>
-              )}
+              )} */} {/* Removed Final Amount display */}
             </div>
 
             <div className="form-group">
@@ -286,7 +289,7 @@ function AdminBookings() {
               </select>
             </div>
 
-            {bookingStatusUpdate === 'Completed' && (
+            {/* {bookingStatusUpdate === 'Completed' && (
               <div className="form-group">
                 <label>Final Amount (₹):</label>
                 <input
@@ -300,7 +303,7 @@ function AdminBookings() {
                   required
                 />
               </div>
-            )}
+            )} */} {/* Removed Final Amount input */}
 
             <div className="form-group">
               <label>Add Notes:</label>
@@ -324,8 +327,7 @@ function AdminBookings() {
                 onClick={handleUpdateBookingStatus}
                 disabled={
                   !bookingStatusUpdate || 
-                  (bookingStatusUpdate === selectedBooking.status && bookingNotes === (selectedBooking.notes || "") && 
-                   (bookingStatusUpdate !== 'Completed' || (Number(finalAmountInput) === selectedBooking.finalAmount && selectedBooking.adminConfirmed)))
+                  (bookingStatusUpdate === selectedBooking.status && bookingNotes === (selectedBooking.notes || ""))
                 }
                 className="btn btn-primary"
               >

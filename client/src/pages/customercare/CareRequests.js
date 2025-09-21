@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 function CareRequests() {
@@ -176,110 +176,114 @@ function CareRequests() {
         {/* Callback Requests */}
         <div>
           <h3 style={{ marginBottom: "15px", color: 'var(--color-text)' }}>Callback Requests</h3>
-          {loading ? (
-            <p className="text-center">⏳ Loading callback requests...</p>
-          ) : requests.length === 0 ? (
-            <p className="text-center">No callback requests found.</p>
-          ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests.map((request) => (
-                  <tr key={request._id}>
-                    <td>{request.name}</td>
-                    <td>
-                      <a href={`tel:${request.phone}`} className="text-secondary">
-                        {request.phone}
-                      </a>
-                    </td>
-                    <td>
-                      <span className={`status-badge status-${request.status.replace('_', '-')}`}>
-                        {request.status.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => {
-                          setSelectedCallbackRequest(request);
-                          setCallbackStatusUpdate(request.status);
-                          setCallbackNotes(request.notes || "");
-                        }}
-                        className="btn btn-secondary btn-sm"
-                      >
-                        View/Update
-                      </button>
-                    </td>
+          <div>
+            {loading ? (
+              <p className="text-center">⏳ Loading callback requests...</p>
+            ) : requests.length === 0 ? (
+              <p className="text-center">No callback requests found.</p>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {requests.map((request) => (
+                    <tr key={request._id}>
+                      <td>{request.name}</td>
+                      <td>
+                        <a href={`tel:${request.phone}`} className="text-secondary">
+                          {request.phone}
+                        </a>
+                      </td>
+                      <td>
+                        <span className={`status-badge status-${request.status.replace('_', '-')}`}>
+                          {request.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => {
+                            setSelectedCallbackRequest(request);
+                            setCallbackStatusUpdate(request.status);
+                            setCallbackNotes(request.notes || "");
+                          }}
+                          className="btn btn-secondary btn-sm"
+                        >
+                          View/Update
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
 
         {/* Booking Requests */}
         <div>
           <h3 style={{ marginBottom: "15px", color: 'var(--color-text)' }}>Booking Requests</h3>
-          {loading ? (
-            <p className="text-center">⏳ Loading booking requests...</p>
-          ) : bookings.length === 0 ? (
-            <p className="text-center">No booking requests found.</p>
-          ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Customer</th>
-                  <th>Service</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Employee</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map((booking) => (
-                  <tr key={booking._id}>
-                    <td>
-                      {booking.user?.profile?.name || 'N/A'}
-                      <br />
-                      <a href={`tel:${booking.user?.phone}`} className="text-secondary">
-                        {booking.user?.phone || 'N/A'}
-                      </a>
-                      <br />
-                      <small>{booking.user?.profile?.address || 'N/A'}</small>
-                    </td>
-                    <td>{booking.service?.type || 'N/A'}</td>
-                    <td>{formatDate(booking.date)}</td>
-                    <td>
-                      <span className={`status-badge status-${booking.status.toLowerCase().replace(' ', '-').replace('awaiting-admin-confirmation', 'pending')}`}>
-                        {booking.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
-                      </span>
-                    </td>
-                    <td>{booking.employee?.profile?.name || 'Not Assigned'}</td>
-                    <td>
-                      <button
-                        onClick={() => {
-                          setSelectedBookingRequest(booking);
-                          setBookingStatusUpdate(booking.status === 'Completed - Awaiting Admin Confirmation' ? 'Completed' : booking.status); // Map new status back to 'Completed' for dropdown
-                          setBookingNotes(booking.notes || "");
-                          setAssignEmployeeId(booking.employee?._id || "");
-                        }}
-                        className="btn btn-secondary btn-sm"
-                      >
-                        Manage
-                      </button>
-                    </td>
+          <div>
+            {loading ? (
+              <p className="text-center">⏳ Loading booking requests...</p>
+            ) : bookings.length === 0 ? (
+              <p className="text-center">No booking requests found.</p>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Customer</th>
+                    <th>Service</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Employee</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {bookings.map((booking) => (
+                    <tr key={booking._id}>
+                      <td>
+                        {booking.user?.profile?.name || 'N/A'}
+                        <br />
+                        <a href={`tel:${booking.user?.phone}`} className="text-secondary">
+                          {booking.user?.phone || 'N/A'}
+                        </a>
+                        <br />
+                        <small>{booking.user?.profile?.address || 'N/A'}</small>
+                      </td>
+                      <td>{booking.service?.type || 'N/A'}</td>
+                      <td>{formatDate(booking.date)}</td>
+                      <td>
+                        <span className={`status-badge status-${booking.status.toLowerCase().replace(' ', '-').replace('awaiting-admin-confirmation', 'pending')}`}>
+                          {booking.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
+                        </span>
+                      </td>
+                      <td>{booking.employee?.profile?.name || 'Not Assigned'}</td>
+                      <td>
+                        <button
+                          onClick={() => {
+                            setSelectedBookingRequest(booking);
+                            setBookingStatusUpdate(booking.status === 'Completed - Awaiting Admin Confirmation' ? 'Completed' : booking.status); // Map new status back to 'Completed' for dropdown
+                            setBookingNotes(booking.notes || "");
+                            setAssignEmployeeId(booking.employee?._id || "");
+                          }}
+                          className="btn btn-secondary btn-sm"
+                        >
+                          Manage
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
       </div>
 

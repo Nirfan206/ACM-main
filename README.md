@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AL CHAAN MEERA - Multi-Role Appliance Repair & Maintenance Service Web App
 
 ## Overview
@@ -86,3 +87,7 @@ Seed scripts and sample data provided in `server/sampleData/` for testing.
 
 ## License
 MIT
+=======
+# ALCHAANMEERA
+AL CHAAN MEERA (Air Conditioning &amp; Maintenance Company)
+>>>>>>> 645670c8c56b9c63e4d1f4c25a91970d80ab58a4

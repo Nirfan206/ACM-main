@@ -75,7 +75,8 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
     res.json(user);
-  } catch (err) {
+  }
+  catch (err) {
     console.error('❌ Error updating user in adminController:', err); // More specific error logging
     res.status(500).json({ message: 'Error updating user', error: err.message });
   }
@@ -265,7 +266,7 @@ const getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
       .populate('user', 'profile.name phone profile.address')
-      .populate('service', 'type price')
+      .populate('service', 'type') // Removed price
       .populate('employee', 'profile.name phone');
     res.json(bookings);
   } catch (err) {
@@ -274,11 +275,11 @@ const getAllBookings = async (req, res) => {
   }
 };
 
-// NEW: Update booking status by Admin
+// NEW: Update booking status by Admin (removed finalAmount handling)
 const updateBookingStatusByAdmin = async (req, res) => {
   try {
     const { bookingId } = req.params;
-    const { status, notes, finalAmount } = req.body; // NEW: Accept finalAmount
+    const { status, notes } = req.body; // Removed finalAmount
     const allowedStatuses = [
       'Pending', 
       'In Progress', 
@@ -296,19 +297,12 @@ const updateBookingStatusByAdmin = async (req, res) => {
 
     const updateFields = { status, notes };
 
-    // If admin is marking as 'Completed' and providing a final amount
+    // If admin is marking as 'Completed', set adminConfirmed to true
     if (status === 'Completed') {
-      if (finalAmount === undefined || finalAmount === null || isNaN(Number(finalAmount))) {
-        return res.status(400).json({ message: 'Final amount is required when marking a booking as Completed.' });
-      }
-      updateFields.finalAmount = Number(finalAmount);
       updateFields.adminConfirmed = true;
-      updateFields['payment.amount'] = Number(finalAmount); // Update payment amount with final amount
-      updateFields['payment.status'] = 'pending'; // Set payment status to pending for admin to collect
     } else {
-      // If status is not 'Completed', ensure adminConfirmed and finalAmount are reset or not set
+      // If status is not 'Completed', ensure adminConfirmed is false
       updateFields.adminConfirmed = false;
-      updateFields.finalAmount = 0;
     }
 
     const booking = await Booking.findByIdAndUpdate(

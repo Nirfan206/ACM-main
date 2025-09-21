@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../../utils/authUtils'; // Import logout utility
@@ -205,76 +205,81 @@ function CustomerBookings() {
       {error && <div className="status-message error">{error}</div>}
       {success && <div className="status-message success">{success}</div>}
 
-      <button onClick={() => setShowNewBookingModal(true)} className="btn btn-primary mb-4">
-        ➕ Create New Booking
-      </button>
+      <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '1rem' }}>
+        <button onClick={() => setShowNewBookingModal(true)} className="btn btn-primary">
+          ➕ Create New Booking
+        </button>
+      </div>
 
-      {bookings.length === 0 ? (
-        <p className="text-center text-light">No bookings found. Book a service to see your bookings here.</p>
-      ) : (
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Booking ID</th>
-              <th>Service</th>
-              <th>Problem</th>
-              <th>Date & Time</th>
-              <th>Address</th>
-              <th>Status</th>
-              <th>Final Amount</th> {/* NEW: Final Amount column */}
-              <th>Assigned Employee</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((booking) => (
-              <tr key={booking._id}>
-                <td>{booking._id.substring(0, 8)}</td>
-                <td>{booking.service?.type || 'N/A'}</td>
-                <td>{booking.problemDescription || 'N/A'}</td>
-                <td>{formatDate(booking.date)} at {booking.time}</td>
-                <td>{booking.address || 'N/A'}</td>
-                <td>
-                  <span className={`status-badge status-${booking.status.toLowerCase().replace(' ', '-')}`}>
-                    {booking.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
-                  </span>
-                </td>
-                <td>
-                  {booking.status === 'Completed' && booking.adminConfirmed ? (
-                    `₹${booking.finalAmount.toFixed(2)}`
-                  ) : (
-                    'N/A'
-                  )}
-                </td>
-                <td>
-                  {booking.employee ? (
-                    <>
-                      {booking.employee.profile?.name || 'N/A'}
-                      <br />
-                      {/* Make phone number a clickable link */}
-                      <a href={`tel:${booking.employee.phone}`} className="text-secondary">
-                        {booking.employee.phone || 'N/A'}
-                      </a>
-                    </>
-                  ) : (
-                    'Not Assigned'
-                  )}
-                </td>
-                <td>
-                  {(booking.status === "Pending" || booking.status === "In Progress") && (
-                    <button
-                      onClick={() => handleCancelBooking(booking._id)}
-                      className="btn btn-danger btn-sm"
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </td>
+      {/* Bookings Table */}
+      <div>
+        {bookings.length === 0 ? (
+          <p className="text-center text-light">No bookings found. Book a service to see your bookings here.</p>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Booking ID</th>
+                <th>Service</th>
+                <th>Problem</th>
+                <th>Date & Time</th>
+                <th>Address</th>
+                <th>Status</th>
+                {/* <th>Final Amount</th> */} {/* Removed Final Amount column */}
+                <th>Assigned Employee</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {bookings.map((booking) => (
+                <tr key={booking._id}>
+                  <td>{booking._id.substring(0, 8)}</td>
+                  <td>{booking.service?.type || 'N/A'}</td>
+                  <td>{booking.problemDescription || 'N/A'}</td>
+                  <td>{formatDate(booking.date)} at {booking.time}</td>
+                  <td>{booking.address || 'N/A'}</td>
+                  <td>
+                    <span className={`status-badge status-${booking.status.toLowerCase().replace(' ', '-').replace('awaiting-admin-confirmation', 'pending')}`}>
+                      {booking.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
+                    </span>
+                  </td>
+                  {/* <td>
+                    {booking.status === 'Completed' && booking.adminConfirmed ? (
+                      `₹${booking.finalAmount.toFixed(2)}`
+                    ) : (
+                      'N/A'
+                    )}
+                  </td> */} {/* Removed Final Amount display */}
+                  <td>
+                    {booking.employee ? (
+                      <>
+                        {booking.employee.profile?.name || 'N/A'}
+                        <br />
+                        {/* Make phone number a clickable link */}
+                        <a href={`tel:${booking.employee.phone}`} className="text-secondary">
+                          {booking.employee.phone || 'N/A'}
+                        </a>
+                      </>
+                    ) : (
+                      'Not Assigned'
+                    )}
+                  </td>
+                  <td>
+                    {(booking.status === "Pending" || booking.status === "In Progress") && (
+                      <button
+                        onClick={() => handleCancelBooking(booking._id)}
+                        className="btn btn-danger btn-sm"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
       {/* New Booking Modal */}
       {showNewBookingModal && (
@@ -293,7 +298,7 @@ function CustomerBookings() {
                 >
                   <option value="">Select Service</option>
                   {availableServices.map((service) => (
-                    <option key={service._id} value={service._id}>{service.type} - ₹{service.price}</option>
+                    <option key={service._id} value={service._id}>{service.type}</option>
                   ))}
                 </select>
               </div>

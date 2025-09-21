@@ -8,7 +8,7 @@ const Booking = require('../models/Booking');
 const getBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({ user: req.user.id })
-      .populate('service', 'type price') // Populate service to get type and price
+      .populate('service', 'type') // Populate service to get type (removed price)
       .populate('employee', 'profile.name phone profile.address'); // Populate employee to get name, phone, and address
     res.json(bookings);
   } catch (err) {

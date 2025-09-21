@@ -135,7 +135,7 @@ function HomePage() {
 
   const getServiceDetails = (serviceType) => {
     const service = availableServices.find(s => s.type.toLowerCase().includes(serviceType.toLowerCase()));
-    return service || { _id: '', type: serviceType, description: `No description available for ${serviceType}.`, price: 'N/A' };
+    return service || { _id: '', type: serviceType, description: `No description available for ${serviceType}.` };
   };
 
   const acService = getServiceDetails('ac');
@@ -147,21 +147,22 @@ function HomePage() {
       {/* Header */}
       <Header />
       {/* Added padding to main content to account for fixed header */}
-      <div style={{ paddingTop: '80px' }}> {/* This div pushes content down */}
+      <div style={{ paddingTop: '100px' }}> {/* Increased padding to 100px for more clearance */}
         {/* Whatsapp and Call Now buttons section */}
-       <br></br><br></br><br></br><br></br>
-               <section style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', justifyContent: 'center', maxWidth: '900px', margin: '0 auto', width: '100%', paddingLeft: '20px', paddingRight: '20px' }}>
+        <br></br><br></br><br></br><br></br>
+        <section style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', justifyContent: 'center', maxWidth: '900px', margin: '0 auto', width: '100%', paddingLeft: '20px', paddingRight: '20px' }}>
             <a href="https://wa.me/9966972228" style={{ textDecoration: 'none' }}>
               <button style={{ padding: '0.8rem 2rem', background: 'var(--color-success)', color: 'var(--color-white)', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer', transition: 'background-color 0.3s ease' }}>
-                Whatsapp Us
+                Customer Care Whatsapp Us
               </button>
             </a>
             <a href="tel:9966972228" style={{ textDecoration: 'none' }}>
               <button style={{ padding: '0.8rem 2rem', background: 'var(--color-error)', color: 'var(--color-white)', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer', transition: 'background-color 0.3s ease' }}>
-                Call Now
+                Customer Care Call Now
               </button>
             </a>
           </section>
+
 
         {/* Main Content */}
         <main style={{ flex: 1, maxWidth: '900px', margin: '0 auto', width: '100%', padding: '20px' }}>
@@ -186,7 +187,7 @@ function HomePage() {
                   >
                     <option value="">Select Service</option>
                     {availableServices.map((service) => (
-                      <option key={service._id} value={service._id}>{service.type} - ₹{service.price}</option>
+                      <option key={service._id} value={service._id}>{service.type}</option>
                     ))}
                   </select>
                 </div>
@@ -236,6 +237,23 @@ function HomePage() {
               </form>
             </div>
           )}
+          <section style={{ textAlign: 'center', margin: '2rem 0' }}>
+  <h2 style={{ color: 'green', marginBottom: '1rem' }}>Our Services Video</h2>
+  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px', boxShadow: 'var(--shadow)' }}>
+    <iframe
+      src="https://www.youtube.com/embed/wFKcZi7K2uM"
+      title="Our Services Video"
+      frameBorder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '12px' }}
+    ></iframe>
+  </div>
+</section>
+
+
+
+         
 
           {/* Service Sections */}
           <section style={{ marginBottom: '3rem', padding: '20px', backgroundColor: 'var(--color-white)', borderRadius: '12px', boxShadow: 'var(--shadow)', border: '1px solid var(--border)' }}>
@@ -265,7 +283,7 @@ function HomePage() {
               <span style={{ fontWeight: 'bold' }}>Hours:</span> Open 24 hours
             </div>
             <div style={{ marginBottom: '0.5rem', fontSize: '1.1rem', color: 'var(--color-text)' }}>
-              <span style={{ fontWeight: 'bold' }}>Contact Number:</span> 9966972228
+              <span style={{ fontWeight: 'bold' }}>Customer Care Number:</span> 9966972228
             </div>
           </section>
         </main>

@@ -23,13 +23,12 @@ const bookingSchema = new mongoose.Schema({
     ], 
     default: 'Pending' 
   },
-  payment: {
-    amount: { type: Number, default: 0 },
-    method: { type: String, default: 'Not Paid' },
-    status: { type: String, enum: ['paid', 'failed', 'pending'] }
-
-  },
-  finalAmount: { type: Number, default: 0 }, // NEW: Final amount after service, set by admin
+  // payment: { // Removed payment object
+  //   amount: { type: Number, default: 0 },
+  //   method: { type: String, default: 'Not Paid' },
+  //   status: { type: String, enum: ['paid', 'failed', 'pending'] }
+  // },
+  // finalAmount: { type: Number, default: 0 }, // Removed finalAmount field
   adminConfirmed: { type: Boolean, default: false }, // NEW: Flag for admin confirmation
   createdAt: { type: Date, default: Date.now }
 }, { timestamps: true }); // adds updatedAt automatically

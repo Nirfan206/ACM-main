@@ -6,24 +6,9 @@ const getAnalytics = async (req, res) => {
     // Total bookings
     const totalBookings = await Booking.countDocuments();
 
-    // Total revenue (only from completed bookings, regardless of payment status)
-    const totalRevenueAgg = await Booking.aggregate([
-      {
-        $match: {
-          status: 'Completed', // Only count completed bookings
-          // Removed: 'payment.status': 'paid' // Now includes all completed bookings
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: { $ifNull: ['$payment.amount', 0] } }
-        }
-      }
-    ]);
-    const totalRevenue = totalRevenueAgg[0]?.total || 0;
+    // Removed: Total revenue calculation
 
-    // Employee performance
+    // Employee performance (only job counts, no financial metrics)
     const employeePerformance = await User.aggregate([
       { $match: { role: 'employee' } },
       { $lookup: {
@@ -50,12 +35,12 @@ const getAnalytics = async (req, res) => {
     // --- DEBUG LOGS ---
     console.log('--- Analytics Data from Backend ---');
     console.log('Total Bookings:', totalBookings);
-    console.log('Total Revenue:', totalRevenue);
-    console.log('Employee Performance:', JSON.stringify(employeePerformance, null, 2));
+    // console.log('Total Revenue:', totalRevenue); // Removed
+    console.log('Employee Performance (non-financial):', JSON.stringify(employeePerformance, null, 2));
     console.log('-----------------------------------');
     // --- END DEBUG LOGS ---
 
-    res.json({ totalBookings, totalRevenue, employeePerformance });
+    res.json({ totalBookings, employeePerformance }); // Removed totalRevenue
   } catch (err) {
     res.status(500).json({ message: 'Error fetching analytics', error: err.message });
   }

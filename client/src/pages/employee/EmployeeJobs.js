@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 function EmployeeJobs() {
@@ -109,59 +109,61 @@ function EmployeeJobs() {
       )}
 
       {/* Jobs Table */}
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>Customer</th>
-            <th>Service</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Notes</th> {/* NEW: Notes column */}
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {jobs.length === 0 ? (
+      <div>
+        <table className="data-table">
+          <thead>
             <tr>
-              <td colSpan="6" className="text-center">No jobs assigned to you.</td>
+              <th>Customer</th>
+              <th>Service</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Notes</th> {/* NEW: Notes column */}
+              <th>Actions</th>
             </tr>
-          ) : (
-            jobs.map((job) => (
-              <tr key={job._id}>
-                <td>
-                  {job.user?.profile?.name || 'N/A'}
-                  <br />
-                  <a href={`tel:${job.user?.phone}`} style={{ textDecoration: 'none', color: 'var(--color-secondary)' }}>
-                    {job.user?.phone || 'N/A'}
-                  </a>
-                  <br />
-                  <small>{job.user?.profile?.address || 'N/A'}</small>
-                </td>
-                <td>{job.service?.type || 'N/A'}</td>
-                <td>{new Date(job.date).toLocaleDateString()}</td>
-                <td>
-                  <span className={`status-badge status-${job.status.toLowerCase().replace(' ', '-').replace('awaiting-admin-confirmation', 'pending')}`}>
-                    {job.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
-                  </span>
-                </td>
-                <td>{job.notes || 'N/A'}</td> {/* Display notes */}
-                <td>
-                  <button
-                    onClick={() => {
-                      setSelectedJob(job);
-                      setStatusUpdate(job.status === 'Completed - Awaiting Admin Confirmation' ? 'Completed' : job.status); // Pre-fill with current status, map new status back to 'Completed' for dropdown
-                      setNotesUpdate(job.notes || ""); // Pre-fill with current notes
-                    }}
-                    className="btn btn-secondary btn-sm"
-                  >
-                    Update Status
-                  </button>
-                </td>
+          </thead>
+          <tbody>
+            {jobs.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="text-center">No jobs assigned to you.</td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              jobs.map((job) => (
+                <tr key={job._id}>
+                  <td>
+                    {job.user?.profile?.name || 'N/A'}
+                    <br />
+                    <a href={`tel:${job.user?.phone}`} style={{ textDecoration: 'none', color: 'var(--color-secondary)' }}>
+                      {job.user?.phone || 'N/A'}
+                    </a>
+                    <br />
+                    <small>{job.user?.profile?.address || 'N/A'}</small>
+                  </td>
+                  <td>{job.service?.type || 'N/A'}</td>
+                  <td>{new Date(job.date).toLocaleDateString()}</td>
+                  <td>
+                    <span className={`status-badge status-${job.status.toLowerCase().replace(' ', '-').replace('awaiting-admin-confirmation', 'pending')}`}>
+                      {job.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
+                    </span>
+                  </td>
+                  <td>{job.notes || 'N/A'}</td> {/* Display notes */}
+                  <td>
+                    <button
+                      onClick={() => {
+                        setSelectedJob(job);
+                        setStatusUpdate(job.status === 'Completed - Awaiting Admin Confirmation' ? 'Completed' : job.status); // Pre-fill with current status, map new status back to 'Completed' for dropdown
+                        setNotesUpdate(job.notes || ""); // Pre-fill with current notes
+                      }}
+                      className="btn btn-secondary btn-sm"
+                    >
+                      Update Status
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* Update Status Panel */}
       {selectedJob && (

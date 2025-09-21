@@ -10,7 +10,7 @@ const getJobs = async (req, res) => {
   console.log(`[EmployeeController] getJobs called for employee ID: ${req.user.id}`); // Added log
   try {
     const jobs = await Booking.find({ employee: req.user.id })
-      .populate('service', 'type price') // Populate service to get type and price
+      .populate('service', 'type') // Populate service to get type (removed price)
       .populate('user', 'profile.name phone profile.address'); // Populate user to get customer name, phone, and address
     
     console.log(`[EmployeeController] Found ${jobs.length} jobs for employee ID: ${req.user.id}`); // Added log
@@ -63,52 +63,33 @@ const updateJobStatus = async (req, res) => {
 
 /**
  * GET /api/employee/earnings
- * Fetch earnings and commission for the logged-in employee
+ * Fetch job summary for the logged-in employee (removed earnings/commission)
  */
 const getEmployeeEarnings = async (req, res) => {
   try {
     const employeeId = req.user.id;
 
     // Find all bookings for this employee
-    const allBookings = await Booking.find({ employee: employeeId })
-      .populate('service', 'type price');
+    const allBookings = await Booking.find({ employee: employeeId });
 
-    let totalEarnings = 0;
-    const earningsDetails = [];
     let completedJobs = 0;
     let inProgressJobs = 0;
     let pendingJobs = 0;
     let cancelledJobs = 0;
 
     allBookings.forEach(booking => {
-      // Use finalAmount if adminConfirmed, otherwise use service price
-      const jobAmount = booking.adminConfirmed ? booking.finalAmount : (booking.service?.price || 0);
-
-      if (booking.status === 'Completed') { // Only count truly completed jobs for earnings
-        totalEarnings += jobAmount;
+      if (booking.status === 'Completed') {
         completedJobs++;
-        earningsDetails.push({
-          id: booking._id,
-          job: booking.service?.type || 'Unknown Service',
-          amount: jobAmount,
-          date: booking.date,
-        });
       } else if (booking.status === 'In Progress') {
         inProgressJobs++;
-      } else if (booking.status.startsWith('Pending') || booking.status === 'Completed - Awaiting Admin Confirmation') { // Count all pending statuses including awaiting admin
+      } else if (booking.status.startsWith('Pending') || booking.status === 'Completed - Awaiting Admin Confirmation') {
         pendingJobs++;
       } else if (booking.status === 'Cancelled') {
         cancelledJobs++;
       }
     });
 
-    // Example: 10% commission
-    const commission = totalEarnings * 0.10;
-
     res.json({
-      totalEarnings,
-      commission,
-      earningsDetails,
       jobSummary: {
         totalAssigned: allBookings.length,
         completed: completedJobs,
@@ -118,7 +99,7 @@ const getEmployeeEarnings = async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching employee earnings', error: err.message });
+    res.status(500).json({ message: 'Error fetching employee job summary', error: err.message });
   }
 };
 

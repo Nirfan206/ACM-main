@@ -2,6 +2,7 @@ const Booking = require('../models/Booking');
 const CallbackRequest = require('../models/CallbackRequest');
 const User = require('../models/User'); // Import User model
 const Notification = require('../models/Notification'); // NEW: Import Notification model
+const Service = require('../models/Service'); // NEW: Import Service model
 // const twilioClient = require('../config/twilio'); // Removed Twilio client import
 const bcrypt = require('bcryptjs'); // Import bcryptjs for password hashing
 
@@ -13,7 +14,7 @@ const getBookingRequests = async (req, res) => {
   try {
     const requests = await Booking.find({ status: { $in: ['Pending', 'In Progress', 'Completed - Awaiting Admin Confirmation'] } }) // Include new status
       .populate('user', 'profile.name phone profile.address') // Populate user to get customer name, phone, and address
-      .populate('service', 'type') // Populate service to get service type
+      .populate('service', 'type') // Populate service to get service type (removed price)
       .populate('employee', 'profile.name'); // Populate assigned employee name
     res.json(requests);
   } catch (err) {
@@ -21,6 +22,57 @@ const getBookingRequests = async (req, res) => {
     res.status(500).json({ message: 'Error fetching booking requests', error: err.message });
   }
 };
+
+/**
+ * POST /api/customercare/bookings
+ * Create a new booking for a specific user by Customer Care
+ */
+const createBookingByCare = async (req, res) => {
+  try {
+    const { userId, service, date, time, address, problemDescription } = req.body;
+    console.log('[createBookingByCare] Received booking data:', req.body); // Log incoming data
+
+    if (!userId || !service || !date || !time || !address || !problemDescription) {
+      console.error('[createBookingByCare] Validation error: Missing required fields.');
+      return res.status(400).json({ message: 'All booking fields are required.' });
+    }
+
+    const customer = await User.findById(userId);
+    if (!customer || customer.role !== 'customer') {
+      console.error(`[createBookingByCare] Validation error: Customer not found or invalid role for userId: ${userId}`);
+      return res.status(404).json({ message: 'Customer not found or invalid user ID.' });
+    }
+
+    // Check if the service exists and is active
+    const existingService = await Service.findById(service);
+    if (!existingService || existingService.status !== 'active') {
+      console.error(`[createBookingByCare] Validation error: Service not found or inactive for serviceId: ${service}`);
+      return res.status(404).json({ message: 'Selected service is not available or inactive.' });
+    }
+
+    const newBooking = await Booking.create({
+      user: userId,
+      service,
+      date,
+      time,
+      address,
+      problemDescription,
+      status: 'Pending', // Default status for new bookings
+    });
+
+    console.log('[createBookingByCare] Booking created successfully:', newBooking);
+    res.status(201).json({ message: 'Booking created successfully by Customer Care.', booking: newBooking });
+  } catch (err) {
+    console.error('❌ Error creating booking by Customer Care:', err); // More detailed error logging
+    // Check for Mongoose validation errors
+    if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors).map(val => val.message);
+      return res.status(400).json({ message: messages.join(', ') });
+    }
+    res.status(500).json({ message: 'Failed to create booking.', error: err.message });
+  }
+};
+
 
 /**
  * GET /api/customercare/callback-requests
@@ -304,15 +356,16 @@ const updateCustomerCarePassword = async (req, res) => {
 
 module.exports = { 
   getBookingRequests, 
+  createBookingByCare, // NEW: Export new function
   getCallbackRequests, 
   notifyCustomer, 
   escalateIssue,
-  assignEmployeeToBooking, // Export new function
-  updateBookingStatusByCare, // Export new function
-  getCustomers, // Export new function
-  createCustomer, // Export new function
-  updateCustomer, // Export new function
-  getCustomerCareProfile, // Export new function
-  updateCustomerCareProfile, // Export new function
-  updateCustomerCarePassword // Export new function
+  assignEmployeeToBooking, 
+  updateBookingStatusByCare, 
+  getCustomers, 
+  createCustomer, 
+  updateCustomer, 
+  getCustomerCareProfile, 
+  updateCustomerCareProfile, 
+  updateCustomerCarePassword 
 };

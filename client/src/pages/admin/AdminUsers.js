@@ -1,5 +1,5 @@
 // AdminUsers.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 // API base URL for admin user management
@@ -241,57 +241,61 @@ function AdminUsers() {
         ))}
       </div>
 
-      {/* Add */}
-      <button
-        onClick={()=>openModal()}
-        className="btn btn-accent"
-      >
-        ➕ Add {roleDisplayMap[activeTab]}
-      </button>
+      {/* Add User Button */}
+      <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '1rem' }}>
+        <button
+          onClick={()=>openModal()}
+          className="btn btn-accent"
+        >
+          ➕ Add {roleDisplayMap[activeTab]}
+        </button>
+      </div>
 
       {/* Table */}
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            {(activeTab==='employee' || activeTab==='customer') && <th>Address</th>}
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsers.map(u=>(
-            <tr key={u._id}>
-              <td>{u.profile?.name || 'N/A'}</td>
-              <td>{u.profile?.email || 'N/A'}</td>
-              <td>{u.phone || 'N/A'}</td>
-              {(activeTab==='employee' || activeTab==='customer') && <td>{u.profile?.address || 'N/A'}</td>}
-              <td>
-                <button 
-                  onClick={()=>openModal(u)} 
-                  className="btn btn-secondary btn-sm"
-                >
-                  Edit
-                </button>
-                <button 
-                  onClick={()=>deleteUser(u._id)}
-                  className="btn btn-danger btn-sm"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-          {filteredUsers.length===0&&(
+      <div>
+        <table className="data-table">
+          <thead>
             <tr>
-              <td colSpan={activeTab==='employee' || activeTab==='customer' ? 5 : 4} className="text-center">
-                No {roleDisplayMap[activeTab].toLowerCase()}s found.
-              </td>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              {(activeTab==='employee' || activeTab==='customer') && <th>Address</th>}
+              <th>Actions</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredUsers.map(u=>(
+              <tr key={u._id}>
+                <td>{u.profile?.name || 'N/A'}</td>
+                <td>{u.profile?.email || 'N/A'}</td>
+                <td>{u.phone || 'N/A'}</td>
+                {(activeTab==='employee' || activeTab==='customer') && <td>{u.profile?.address || 'N/A'}</td>}
+                <td>
+                  <button 
+                    onClick={()=>openModal(u)} 
+                    className="btn btn-secondary btn-sm"
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    onClick={()=>deleteUser(u._id)}
+                    className="btn btn-danger btn-sm"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {filteredUsers.length===0&&(
+              <tr>
+                <td colSpan={activeTab==='employee' || activeTab==='customer' ? 5 : 4} className="text-center">
+                  No {roleDisplayMap[activeTab].toLowerCase()}s found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* Modal for Add/Edit */}
       {showModal && (
