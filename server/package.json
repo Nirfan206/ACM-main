@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "Backend for AL CHAAN MEERA appliance service app",
   "main": "index.js",
+  
   "scripts": {
-   "start": "node server/index.js",
-  "client": "npm start --prefix client",
-  "build": "npm install && npm run build --prefix client"
+  "start": "node index.js",
+  "build": "npm install --prefix ../client && npm run build --prefix ../client"
+}
+
   },
   "dependencies": {
     "bcrypt": "^5.1.0",
