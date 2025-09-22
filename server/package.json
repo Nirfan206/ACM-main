@@ -4,8 +4,9 @@
   "description": "Backend for AL CHAAN MEERA appliance service app",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+   "start": "node server/index.js",
+  "client": "npm start --prefix client",
+  "build": "npm install && npm run build --prefix client"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",
