@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api'; // You might need to adjust the path (e.g., '../../api')
+import api from '../api'; // This import is correct
 import { useNavigate } from 'react-router-dom';
 
 function AdminEmployeeStatus() {
@@ -18,9 +18,12 @@ function AdminEmployeeStatus() {
         return;
       }
 
-      const response = await axios.get('http://localhost:5000/api/admin/employees/status', {
+      // --- THIS IS THE LINE I FIXED ---
+      const response = await api.get('/api/admin/employees/status', {
         headers: { Authorization: `Bearer ${token}` },
       });
+      // --- END OF FIX ---
+
       setEmployees(response.data);
       console.log('[AdminEmployeeStatus] Fetched employees:', response.data); // Added log
     } catch (err) {
