@@ -15,7 +15,7 @@ const {
   getCustomerCareProfile,       // NEW: Import
   updateCustomerCareProfile,    // NEW: Import
   updateCustomerCarePassword    // NEW: Import
-} = require('../controllers/customerCareController');
+} = require('../controllers/customercareController');
 
 // ---------------------------
 // Customer Care Profile Routes (NEW)
