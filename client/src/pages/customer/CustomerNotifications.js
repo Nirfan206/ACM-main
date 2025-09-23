@@ -19,7 +19,7 @@ function CustomerNotifications() {
         return;
       }
 
-      const response = await axios.get('http://localhost:5000/api/customer/notifications', {
+      const response = await api.get('/api/customer/notifications', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(response.data);
@@ -45,7 +45,7 @@ function CustomerNotifications() {
   const markAsRead = async (notificationId) => {
     try {
       const token = sessionStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/customer/notifications/${notificationId}/read`, {}, {
+      await api.put(`/api/customer/notifications/${notificationId}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       // Update local state to reflect the change
