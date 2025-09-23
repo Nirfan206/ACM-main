@@ -31,7 +31,7 @@ function CareRequests() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setError("Authentication required. Please log in.");
         setLoading(false);
@@ -39,19 +39,19 @@ function CareRequests() {
       }
       
       // Fetch CallbackRequest models
-      const callbackResponse = await axios.get("http://localhost:5000/api/customercare/callback-requests", {
+      const callbackResponse = await api.get("/api/customercare/callback-requests", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setRequests(callbackResponse.data);
 
       // Fetch BookingRequest models
-      const bookingResponse = await axios.get("http://localhost:5000/api/customercare/requests", {
+      const bookingResponse = await api.get("/api/customercare/requests", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setBookings(bookingResponse.data);
 
       // Fetch Employees for assignment
-      const employeesResponse = await axios.get("http://localhost:5000/api/admin/users", { // Admin route to get all users, then filter
+      const employeesResponse = await api.get("/api/admin/users", { // Admin route to get all users, then filter
         headers: { Authorization: `Bearer ${token}` }
       });
       setEmployees(employeesResponse.data.filter(user => user.role === 'employee'));
@@ -73,8 +73,8 @@ function CareRequests() {
     }
 
     try {
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
-      await axios.put(`http://localhost:5000/api/callback-requests/${selectedCallbackRequest._id}`, {
+      const token = sessionStorage.getItem('token');
+      await api.put(`/api/callback-requests/${selectedCallbackRequest._id}`, {
         status: callbackStatusUpdate,
         notes: callbackNotes.trim(),
       }, {
@@ -101,8 +101,8 @@ function CareRequests() {
     }
 
     try {
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
-      await axios.put(`http://localhost:5000/api/customercare/bookings/${selectedBookingRequest._id}/status`, {
+      const token = sessionStorage.getItem('token');
+      await api.put(`/api/customercare/bookings/${selectedBookingRequest._id}/status`, {
         status: bookingStatusUpdate,
         notes: bookingNotes.trim(),
       }, {
@@ -129,8 +129,8 @@ function CareRequests() {
     }
 
     try {
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
-      await axios.put(`http://localhost:5000/api/customercare/bookings/${selectedBookingRequest._id}/assign-employee`, {
+      const token = sessionStorage.getItem('token');
+      await api.put(`/api/customercare/bookings/${selectedBookingRequest._id}/assign-employee`, {
         employeeId: assignEmployeeId,
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -269,7 +269,7 @@ function CareRequests() {
                         <button
                           onClick={() => {
                             setSelectedBookingRequest(booking);
-                            setBookingStatusUpdate(booking.status === 'Completed - Awaiting Admin Confirmation' ? 'Completed' : booking.status); // Map new status back to 'Completed' for dropdown
+                            setBookingStatusUpdate(booking.status === 'Completed - Awaiting Admin Confirmation' ? 'Completed' : booking.status);
                             setBookingNotes(booking.notes || "");
                             setAssignEmployeeId(booking.employee?._id || "");
                           }}
@@ -392,7 +392,7 @@ function CareRequests() {
                 <option value="">Select Status</option>
                 <option value="Pending">Pending</option>
                 <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option> {/* Customer Care sees 'Completed' */}
+                <option value="Completed">Completed</option>
                 <option value="Cancelled">Cancelled</option>
               </select>
             </div>
