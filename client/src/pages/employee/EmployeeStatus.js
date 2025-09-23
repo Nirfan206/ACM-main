@@ -33,7 +33,7 @@ function EmployeeStatus() {
         navigate('/login');
         return;
       }
-      const response = await axios.get('http://localhost:5000/api/employee/status', {
+      const response = await api.get('/api/employee/status', {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log('[EmployeeStatus] Fetched working status response data:', response.data);
@@ -71,11 +71,9 @@ function EmployeeStatus() {
         return;
       }
 
-      // The backend toggleWorkingStatus now simply flips the boolean 'isWorking'.
-      // We need to call it if the current status is NOT the desired status.
       if ((status === 'free' && workingStatus === 'working') || (status === 'working' && workingStatus === 'free')) {
         console.log(`[EmployeeStatus] Calling toggle API. Current UI status: ${workingStatus}, Desired: ${status}`);
-        const response = await axios.put('http://localhost:5000/api/employee/status/toggle', {}, { // No body needed, it's a toggle
+        const response = await api.put('/api/employee/status/toggle', {}, { // No body needed, it's a toggle
           headers: { Authorization: `Bearer ${token}` },
         });
         
