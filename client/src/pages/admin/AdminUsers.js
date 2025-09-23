@@ -1,6 +1,6 @@
 // AdminUsers.js
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import api from '../api'; 
 
 // API base URL for admin user management
 const API_URL = 'http://localhost:5000/api/admin/users';
