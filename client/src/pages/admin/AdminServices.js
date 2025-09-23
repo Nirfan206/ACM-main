@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-
+import api from '../api'; 
 // API base URL for service management
 const API_URL = 'http://localhost:5000/api/services';
 const UPLOAD_URL = 'http://localhost:5000/api/upload/image'; // Backend image upload endpoint
