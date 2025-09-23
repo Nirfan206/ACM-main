@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Added this import
-
+//import axios from 'axios'; // Added this import
+import api from '../api'; // You might need to adjust the path (e.g., '../../api')
 function LoginPage() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
