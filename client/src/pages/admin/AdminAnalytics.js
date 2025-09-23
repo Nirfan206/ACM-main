@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api'; // This import is correct
+import api from '../../api'; // This import is correct
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../../utils/authUtils'; // Import logout utility
 
