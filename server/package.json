@@ -6,7 +6,7 @@
   
 "scripts": {
   "start": "node index.js",
-  "build": "cd ../client && npm install && npm run build"
+  "build": "cd ../client && npm install && chmod +x node_modules/.bin/react-scripts && npm run build"
 },
   "dependencies": {
     "bcrypt": "^5.1.0",
