@@ -101,5 +101,5 @@ router.get("/bookings", auth(["customer"]), getBookings);
 router.post("/bookings", auth(["customer"]), createBooking);
 router.put("/bookings/:id", auth(["customer"]), updateBooking);
 router.delete("/bookings/:id", auth(["customer"]), deleteBooking);
-
+router.get("/notifications", auth(["customer"]), getNotifications);
 module.exports = router;
