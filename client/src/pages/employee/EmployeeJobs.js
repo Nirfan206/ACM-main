@@ -5,40 +5,39 @@ function EmployeeJobs() {
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [statusUpdate, setStatusUpdate] = useState("");
-  const [notesUpdate, setNotesUpdate] = useState(""); // NEW: State for notes
+  const [notesUpdate, setNotesUpdate] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // Fetch jobs from API
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        setLoading(true);
-        const token = sessionStorage.getItem('token'); // Changed from localStorage
-        
-        if (!token) {
-          setError("Authentication required. Please log in.");
-          setLoading(false);
-          return;
-        }
-        
-        const response = await axios.get('http://localhost:5000/api/employee/jobs', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        
-        setJobs(response.data);
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+      const token = sessionStorage.getItem('token');
+      
+      if (!token) {
+        setError("Authentication required. Please log in.");
         setLoading(false);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching jobs:", err);
-        setError("Failed to load jobs. Please try again later.");
-        setLoading(false);
+        return;
       }
-    };
-    
+      
+      const response = await api.get('/api/employee/jobs', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      setJobs(response.data);
+      setLoading(false);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching jobs:", err);
+      setError("Failed to load jobs. Please try again later.");
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     fetchJobs(); // Initial fetch
 
     const intervalId = setInterval(fetchJobs, 5000); // Poll every 5 seconds
@@ -50,16 +49,15 @@ function EmployeeJobs() {
     if (!statusUpdate) return;
     
     try {
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
+      const token = sessionStorage.getItem('token');
       
       if (!token) {
         setError("Authentication required. Please log in.");
         return;
       }
       
-      // Correct API endpoint for updating job status
-      await axios.put(`http://localhost:5000/api/employee/jobs/${jobId}`, 
-        { status: statusUpdate, notes: notesUpdate.trim() }, // Include notes
+      await api.put(`/api/employee/jobs/${jobId}`, 
+        { status: statusUpdate, notes: notesUpdate.trim() },
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -67,7 +65,6 @@ function EmployeeJobs() {
         }
       );
       
-      // Update local state after successful API call
       const updatedJobs = jobs.map((job) =>
         job._id === jobId ? { ...job, status: statusUpdate, notes: notesUpdate.trim() } : job
       );
@@ -75,7 +72,7 @@ function EmployeeJobs() {
       setJobs(updatedJobs);
       setSelectedJob(null);
       setStatusUpdate("");
-      setNotesUpdate(""); // Clear notes
+      setNotesUpdate("");
       setSuccess("Job status updated successfully!");
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
@@ -108,7 +105,6 @@ function EmployeeJobs() {
         </div>
       )}
 
-      {/* Jobs Table */}
       <div>
         <table className="data-table">
           <thead>
@@ -117,7 +113,7 @@ function EmployeeJobs() {
               <th>Service</th>
               <th>Date</th>
               <th>Status</th>
-              <th>Notes</th> {/* NEW: Notes column */}
+              <th>Notes</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -145,13 +141,13 @@ function EmployeeJobs() {
                       {job.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
                     </span>
                   </td>
-                  <td>{job.notes || 'N/A'}</td> {/* Display notes */}
+                  <td>{job.notes || 'N/A'}</td>
                   <td>
                     <button
                       onClick={() => {
                         setSelectedJob(job);
-                        setStatusUpdate(job.status === 'Completed - Awaiting Admin Confirmation' ? 'Completed' : job.status); // Pre-fill with current status, map new status back to 'Completed' for dropdown
-                        setNotesUpdate(job.notes || ""); // Pre-fill with current notes
+                        setStatusUpdate(job.status === 'Completed - Awaiting Admin Confirmation' ? 'Completed' : job.status);
+                        setNotesUpdate(job.notes || "");
                       }}
                       className="btn btn-secondary btn-sm"
                     >
@@ -165,7 +161,6 @@ function EmployeeJobs() {
         </table>
       </div>
 
-      {/* Update Status Panel */}
       {selectedJob && (
         <div className="card" style={{ marginTop: "20px" }}>
           <h4 style={{ marginBottom: "1rem", color: 'var(--color-text)' }}>Update Job Status</h4>
@@ -192,7 +187,7 @@ function EmployeeJobs() {
               <option value="">Select Status</option>
               <option value="Pending">Pending</option>
               <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option> {/* Employee sees 'Completed' */}
+              <option value="Completed">Completed</option>
               <option value="Cancelled">Cancelled</option>
               <option value="Pending - Weather">Pending - Weather</option>
               <option value="Pending - Customer Unavailable">Pending - Customer Unavailable</option>
