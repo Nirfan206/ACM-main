@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import api from '../api'; // You might need to adjust the path (e.g., '../../api')
+import api from '../api';
 import { useNavigate, Link } from "react-router-dom";
 
 function RegisterPage() {
@@ -38,7 +38,7 @@ function RegisterPage() {
     }
 
     try {
-      const registerRes = await axios.post("http://localhost:5000/api/auth/register", { // Changed port from 5001 to 5000
+      const registerRes = await api.post("/api/auth/register", {
         name,
         phone,
         password,
