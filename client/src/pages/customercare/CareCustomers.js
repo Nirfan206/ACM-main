@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-
+import api from '../api'; 
 const API_URL = 'http://localhost:5000/api/customercare/customers';
 
 function CareCustomers() {
