@@ -9,8 +9,8 @@ const {
   createBooking,
   updateBooking,
   deleteBooking,
+  getNotifications, // <-- ADD THIS LINE
 } = require("../controllers/customerController");
-
 // ---------------------------
 // Customer Profile Routes
 // ---------------------------
