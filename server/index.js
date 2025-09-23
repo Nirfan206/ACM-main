@@ -25,25 +25,9 @@ const app = express();
 // Middlewares
 // ----------------------
 app.use(express.json());
-
-// A more secure CORS setup for production
-if (process.env.NODE_ENV === "production") {
-    // Replace this with your actual frontend's domain
-    const allowedOrigins = ['https://your-frontend-domain.com']; 
-    
-    app.use(cors({
-        origin: function (origin, callback) {
-            if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        }
-    }));
-} else {
-    // Allow all origins in development
-    app.use(cors());
-}
+// A simple cors configuration is sufficient for general API accessibility.
+// The browser won't block requests from your frontend since they are on the same domain.
+app.use(cors());
 
 // ----------------------
 // API Routes
@@ -61,6 +45,7 @@ app.use('/api/upload', uploadRoutes);
 
 // ----------------------
 // Serve React Frontend (Production)
+// This is the core logic for the single-repo deployment.
 // ----------------------
 if (process.env.NODE_ENV === "production") {
   const buildPath = path.join(__dirname, "../client/build");
@@ -88,7 +73,7 @@ const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URI)
   .then(() => {
-    console.log("✅ MongoDB connected");
+    console.log("✅ MongoDB connected successfully.");
     app.listen(PORT, () =>
       console.log(`🔥 Server running on port ${PORT}`)
     );
