@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import api from '../api'; // You might need to adjust the path (e.g., '../../api')
+import api from '../api'; // This import is correct
 import { useNavigate } from 'react-router-dom';
 
 function AdminBookings() {
@@ -13,7 +13,6 @@ function AdminBookings() {
   const [assignEmployeeId, setAssignEmployeeId] = useState('');
   const [bookingStatusUpdate, setBookingStatusUpdate] = useState('');
   const [bookingNotes, setBookingNotes] = useState('');
-  // const [finalAmountInput, setFinalAmountInput] = useState(''); // Removed: State for final amount input
 
   const navigate = useNavigate();
 
@@ -25,7 +24,7 @@ function AdminBookings() {
     'Pending - Weather', 
     'Pending - Customer Unavailable', 
     'Pending - Technical',
-    'Completed - Awaiting Admin Confirmation' // NEW: Admin can also set this status
+    'Completed - Awaiting Admin Confirmation'
   ];
 
   useEffect(() => {
@@ -47,13 +46,13 @@ function AdminBookings() {
       }
 
       // Fetch all bookings
-      const bookingsResponse = await axios.get('http://localhost:5000/api/admin/bookings', {
+      const bookingsResponse = await api.get('/api/admin/bookings', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBookings(bookingsResponse.data);
 
       // Fetch all employees
-      const employeesResponse = await axios.get('http://localhost:5000/api/admin/users', {
+      const employeesResponse = await api.get('/api/admin/users', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setEmployees(employeesResponse.data.filter(user => user.role === 'employee'));
@@ -74,7 +73,6 @@ function AdminBookings() {
     setAssignEmployeeId(booking.employee?._id || '');
     setBookingStatusUpdate(booking.status);
     setBookingNotes(booking.notes || '');
-    // setFinalAmountInput(booking.finalAmount > 0 ? booking.finalAmount.toString() : ''); // Removed: Pre-fill final amount
     setShowModal(true);
   };
 
@@ -87,7 +85,7 @@ function AdminBookings() {
 
     try {
       const token = sessionStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/admin/bookings/${selectedBooking._id}/assign-employee`, {
+      await api.put(`/api/admin/bookings/${selectedBooking._id}/assign-employee`, {
         employeeId: assignEmployeeId,
       }, {
         headers: { Authorization: `Bearer ${token}` },
@@ -109,22 +107,12 @@ function AdminBookings() {
       setTimeout(() => setError(''), 3000);
       return;
     }
-
-    // Removed: Validation for final amount if status is 'Completed'
-    // if (bookingStatusUpdate === 'Completed') {
-    //   if (finalAmountInput === '' || isNaN(Number(finalAmountInput)) || Number(finalAmountInput) <= 0) {
-    //     setError('Final amount must be a positive number when marking as Completed.');
-    //     setTimeout(() => setError(''), 5000);
-    //     return;
-    //   }
-    // }
-
+    
     try {
       const token = sessionStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/admin/bookings/${selectedBooking._id}/status`, {
+      await api.put(`/api/admin/bookings/${selectedBooking._id}/status`, {
         status: bookingStatusUpdate,
         notes: bookingNotes.trim(),
-        // finalAmount: bookingStatusUpdate === 'Completed' ? Number(finalAmountInput) : undefined, // Removed: Only send if status is 'Completed'
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -185,7 +173,6 @@ function AdminBookings() {
                 <th>Service</th>
                 <th>Date & Time</th>
                 <th>Status</th>
-                {/* <th>Final Amount</th> */} {/* Removed Final Amount column */}
                 <th>Assigned Employee</th>
                 <th>Actions</th>
               </tr>
@@ -210,13 +197,6 @@ function AdminBookings() {
                       {booking.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
                     </span>
                   </td>
-                  {/* <td>
-                    {booking.status === 'Completed' && booking.adminConfirmed ? (
-                      `₹${booking.finalAmount.toFixed(2)}`
-                    ) : (
-                      'N/A'
-                    )}
-                  </td> */} {/* Removed Final Amount display */}
                   <td>{booking.employee?.profile?.name || 'Not Assigned'}</td>
                   <td>
                     <button
@@ -247,9 +227,6 @@ function AdminBookings() {
               <p><strong>Current Status:</strong> {selectedBooking.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}</p>
               <p><strong>Assigned Employee:</strong> {selectedBooking.employee?.profile?.name || 'Not Assigned'}</p>
               <p><strong>Notes:</strong> {selectedBooking.notes || 'N/A'}</p>
-              {/* {selectedBooking.status === 'Completed' && selectedBooking.adminConfirmed && (
-                <p><strong>Final Amount:</strong> ₹{selectedBooking.finalAmount.toFixed(2)}</p>
-              )} */} {/* Removed Final Amount display */}
             </div>
 
             <div className="form-group">
@@ -288,23 +265,7 @@ function AdminBookings() {
                 ))}
               </select>
             </div>
-
-            {/* {bookingStatusUpdate === 'Completed' && (
-              <div className="form-group">
-                <label>Final Amount (₹):</label>
-                <input
-                  type="number"
-                  value={finalAmountInput}
-                  onChange={(e) => setFinalAmountInput(e.target.value)}
-                  className="form-control"
-                  placeholder="Enter final amount"
-                  min="0"
-                  step="0.01"
-                  required
-                />
-              </div>
-            )} */} {/* Removed Final Amount input */}
-
+            
             <div className="form-group">
               <label>Add Notes:</label>
               <textarea
