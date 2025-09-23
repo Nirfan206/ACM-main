@@ -25,7 +25,25 @@ const app = express();
 // Middlewares
 // ----------------------
 app.use(express.json());
-app.use(cors());
+
+// A more secure CORS setup for production
+if (process.env.NODE_ENV === "production") {
+    // Replace this with your actual frontend's domain
+    const allowedOrigins = ['https://your-frontend-domain.com']; 
+    
+    app.use(cors({
+        origin: function (origin, callback) {
+            if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        }
+    }));
+} else {
+    // Allow all origins in development
+    app.use(cors());
+}
 
 // ----------------------
 // API Routes
@@ -44,45 +62,38 @@ app.use('/api/upload', uploadRoutes);
 // ----------------------
 // Serve React Frontend (Production)
 // ----------------------
-const __dirname1 = path.resolve();
-
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname1, "../client/build")));
+  const buildPath = path.join(__dirname, "../client/build");
+  app.use(express.static(buildPath));
 
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname1, "../client/build/index.html"));
+    res.sendFile(path.join(buildPath, "index.html"));
   });
 } else {
   app.get("/", (req, res) => {
-    res.send("🚀 AL CHAAN MEERA API is running...");
+    res.send("🚀 AL CHAAN MEERA API (Development) is running...");
   });
 }
 
 // ----------------------
-// Error Handler
+// Error Handler (should be after routes)
 // ----------------------
 app.use(errorHandler);
 
 // ----------------------
-// Database Connection
+// Server and Database Connection
 // ----------------------
 const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI;
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  autoIndex: true,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-  family: 4 // Use IPv4
-})
-.then(() => {
-  console.log("✅ MongoDB connected");
-  app.listen(PORT, () =>
-    console.log(`🔥 Server running on port ${PORT}`)
-  );
-})
-.catch((err) => {
-  console.error("❌ MongoDB connection error:", err.message);
-  process.exit(1);
-});
+mongoose.connect(MONGO_URI)
+  .then(() => {
+    console.log("✅ MongoDB connected");
+    app.listen(PORT, () =>
+      console.log(`🔥 Server running on port ${PORT}`)
+    );
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err.message);
+    process.exit(1);
+  });
