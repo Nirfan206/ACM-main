@@ -1,33 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import api from '../../api';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import api from "../../api";
+import { useNavigate } from "react-router-dom";
 
 function CareEmployeeAvailability() {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const fetchEmployeeStatuses = async () => {
     try {
       setLoading(true);
-      setError('');
-      const token = sessionStorage.getItem('token');
+      setError("");
+
+      const token = sessionStorage.getItem("token");
       if (!token) {
-        navigate('/login');
+        navigate("/login", { replace: true });
         return;
       }
 
       // Reusing the admin endpoint for employee statuses
-      const response = await api.get('/api/admin/employees/status', {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await api.get("/api/admin/employees/status", {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      setEmployees(response.data);
+
+      setEmployees(res.data || []);
     } catch (err) {
-      console.error('Error fetching employee statuses:', err);
-      setError(err.response?.data?.message || 'Failed to load employee availability.');
-      if (err.response?.status === 401 || err.response?.status === 403) {
-        navigate('/login');
+      console.error("Error fetching employee statuses:", err);
+      setError(err.response?.data?.message || "Failed to load employee availability.");
+      const s = err.response?.status;
+      if (s === 401 || s === 403) {
+        navigate("/login", { replace: true });
       }
     } finally {
       setLoading(false);
@@ -35,11 +38,8 @@ function CareEmployeeAvailability() {
   };
 
   useEffect(() => {
-    fetchEmployeeStatuses(); // Initial fetch
-
-    const intervalId = setInterval(fetchEmployeeStatuses, 5000); // Poll every 5 seconds
-
-    return () => clearInterval(intervalId); // Clean up interval on component unmount
+    // Initial fetch only; removed 5s polling to avoid auto reload behavior
+    fetchEmployeeStatuses();
   }, [navigate]);
 
   if (loading) {
@@ -54,15 +54,17 @@ function CareEmployeeAvailability() {
     return (
       <div className="text-center p-8 status-message error">
         <p>Error: {error}</p>
+        <button onClick={fetchEmployeeStatuses} className="btn btn-outline" style={{ marginTop: 12 }}>
+          Retry
+        </button>
       </div>
     );
   }
 
   return (
     <div className="card admin-page-container">
-      <h3 className="card-title text-center">🧑‍🔧 Employee Availability Dashboard</h3>
-      
-      <div style={{ textAlign: 'right', marginBottom: '1rem' }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h3 className="card-title text-center">🧑‍🔧 Employee Availability Dashboard</h3>
         <button onClick={fetchEmployeeStatuses} className="btn btn-secondary btn-sm">
           Refresh Status
         </button>
@@ -82,13 +84,15 @@ function CareEmployeeAvailability() {
           <tbody>
             {employees.map((employee) => (
               <tr key={employee._id}>
-                <td>{employee.profile?.name || 'N/A'}</td>
-                <td>{employee.phone || 'N/A'}</td>
+                <td>{employee.profile?.name || "N/A"}</td>
+                <td>{employee.phone || "N/A"}</td>
                 <td>
                   <span
-                    className={`status-badge ${employee.workingStatus === 'free' ? 'status-warning' : 'status-success'}`}
+                    className={`status-badge ${
+                      employee.workingStatus === "free" ? "status-warning" : "status-success"
+                    }`}
                   >
-                    {employee.workingStatus?.toUpperCase() || 'N/A'}
+                    {employee.workingStatus?.toUpperCase() || "N/A"}
                   </span>
                 </td>
               </tr>
