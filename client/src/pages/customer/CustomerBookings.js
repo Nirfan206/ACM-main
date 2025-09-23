@@ -13,83 +13,68 @@ function CustomerBookings() {
   const [customerProfile, setCustomerProfile] = useState(null);
   const [newBookingForm, setNewBookingForm] = useState({
     service: '',
-    problem: '', // Stores selected problem from dropdown
-    problemDescription: '', // Stores detailed problem if 'Other' is selected
+    problem: '',
+    problemDescription: '',
     date: '',
     time: '',
     address: '',
   });
   const navigate = useNavigate();
 
-  // Define common problems for each service category
   const serviceProblems = {
-    'AC': [
-      'AC not cooling', 'Water leakage from AC', 'AC making noise', 
-      'AC not turning on', 'Bad odor from AC', 'AC gas refilling'
-    ],
-    'Fridge': [
-      'Fridge not cooling', 'Water leakage from fridge', 'Fridge making noise',
-      'Fridge not turning on', 'Excessive frosting', 'Door seal broken'
-    ],
-    'Washing Machine': [
-      'Washing machine not draining', 'Washing machine not spinning', 'Washing machine making noise',
-      'Washing machine not turning on', 'Water leakage from washing machine', 'Drum not rotating'
-    ],
-    'Electrical': [
-      'Power outage in specific area', 'Faulty wiring', 'Socket repair/replacement',
-      'Light fixture installation/repair', 'Circuit breaker tripping', 'Fan repair/installation'
-    ],
-    'Other': [] // For services not explicitly listed or general issues
+    'AC': ['AC not cooling', 'Water leakage from AC', 'AC making noise', 'AC not turning on', 'Bad odor from AC', 'AC gas refilling'],
+    'Fridge': ['Fridge not cooling', 'Water leakage from fridge', 'Fridge making noise', 'Fridge not turning on', 'Excessive frosting', 'Door seal broken'],
+    'Washing Machine': ['Washing machine not draining', 'Washing machine not spinning', 'Washing machine making noise', 'Washing machine not turning on', 'Water leakage from washing machine', 'Drum not rotating'],
+    'Electrical': ['Power outage in specific area', 'Faulty wiring', 'Socket repair/replacement', 'Light fixture installation/repair', 'Circuit breaker tripping', 'Fan repair/installation'],
+    'Other': []
   };
 
-  // Fetch bookings, services, and customer profile
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = sessionStorage.getItem('token');
-        if (!token) {
-          logout();
-          navigate('/login');
-          return;
-        }
-        
-        setLoading(true);
-        // Fetch bookings
-        const bookingsResponse = await axios.get('http://localhost:5000/api/customer/bookings', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setBookings(bookingsResponse.data);
-
-        // Fetch services
-        const servicesResponse = await axios.get('http://localhost:5000/api/services');
-        setAvailableServices(servicesResponse.data);
-
-        // Fetch customer profile
-        const profileResponse = await axios.get('http://localhost:5000/api/customer/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setCustomerProfile(profileResponse.data);
-        setNewBookingForm(prev => ({ ...prev, address: profileResponse.data.profile?.address || '' }));
-
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError(err.response?.data?.message || 'Failed to load data. Please try again later.');
-        if (err.response?.status === 401 || err.response?.status === 403) {
-          logout();
-          navigate('/login');
-        }
-      } finally {
-        setLoading(false);
+  const fetchData = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      if (!token) {
+        logout();
+        navigate('/login');
+        return;
       }
-    };
+      
+      setLoading(true);
+      // Fetch bookings
+      const bookingsResponse = await api.get('/api/customer/bookings', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setBookings(bookingsResponse.data);
 
+      // Fetch services
+      const servicesResponse = await api.get('/api/services');
+      setAvailableServices(servicesResponse.data);
+
+      // Fetch customer profile
+      const profileResponse = await api.get('/api/customer/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCustomerProfile(profileResponse.data);
+      setNewBookingForm(prev => ({ ...prev, address: profileResponse.data.profile?.address || '' }));
+
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setError(err.response?.data?.message || 'Failed to load data. Please try again later.');
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        logout();
+        navigate('/login');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     fetchData();
-    const intervalId = setInterval(fetchData, 5000); // Poll every 5 seconds
-    return () => clearInterval(intervalId); // Clean up interval on component unmount
+    const intervalId = setInterval(fetchData, 5000);
+    return () => clearInterval(intervalId);
   }, [navigate]);
 
-  // Handle booking cancellation
   const handleCancelBooking = async (bookingId) => {
     if (!window.confirm('Are you sure you want to cancel this booking?')) {
       return;
@@ -97,12 +82,12 @@ function CustomerBookings() {
     
     try {
       const token = sessionStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/customer/bookings/${bookingId}`, {
+      await api.delete(`/api/customer/bookings/${bookingId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
       setSuccess('Booking cancelled successfully!');
-      fetchData(); // Refresh bookings after cancellation
+      fetchData();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error('Error cancelling booking:', err);
@@ -115,7 +100,6 @@ function CustomerBookings() {
     const { name, value } = e.target;
     setNewBookingForm(prev => ({ ...prev, [name]: value }));
     if (name === 'service') {
-      // Reset problem when service changes
       setNewBookingForm(prev => ({ ...prev, problem: '', problemDescription: '' }));
     }
   };
@@ -149,7 +133,7 @@ function CustomerBookings() {
 
     try {
       const token = sessionStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/customer/bookings', {
+      await api.post('/api/customer/bookings', {
         service: newBookingForm.service,
         date: newBookingForm.date,
         time: newBookingForm.time,
@@ -164,7 +148,7 @@ function CustomerBookings() {
       setNewBookingForm({
         service: '', problem: '', problemDescription: '', date: '', time: '', address: customerProfile?.profile?.address || ''
       });
-      fetchData(); // Refresh bookings
+      fetchData();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error('Error creating booking:', err);
@@ -211,7 +195,6 @@ function CustomerBookings() {
         </button>
       </div>
 
-      {/* Bookings Table */}
       <div>
         {bookings.length === 0 ? (
           <p className="text-center text-light">No bookings found. Book a service to see your bookings here.</p>
@@ -225,7 +208,6 @@ function CustomerBookings() {
                 <th>Date & Time</th>
                 <th>Address</th>
                 <th>Status</th>
-                {/* <th>Final Amount</th> */} {/* Removed Final Amount column */}
                 <th>Assigned Employee</th>
                 <th>Actions</th>
               </tr>
@@ -243,19 +225,11 @@ function CustomerBookings() {
                       {booking.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
                     </span>
                   </td>
-                  {/* <td>
-                    {booking.status === 'Completed' && booking.adminConfirmed ? (
-                      `₹${booking.finalAmount.toFixed(2)}`
-                    ) : (
-                      'N/A'
-                    )}
-                  </td> */} {/* Removed Final Amount display */}
                   <td>
                     {booking.employee ? (
                       <>
                         {booking.employee.profile?.name || 'N/A'}
                         <br />
-                        {/* Make phone number a clickable link */}
                         <a href={`tel:${booking.employee.phone}`} className="text-secondary">
                           {booking.employee.phone || 'N/A'}
                         </a>
@@ -281,7 +255,6 @@ function CustomerBookings() {
         )}
       </div>
 
-      {/* New Booking Modal */}
       {showNewBookingModal && (
         <div className="modal-overlay">
           <div className="modal-content">
