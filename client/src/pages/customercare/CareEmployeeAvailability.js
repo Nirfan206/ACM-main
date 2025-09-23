@@ -19,7 +19,7 @@ function CareEmployeeAvailability() {
       }
 
       // Reusing the admin endpoint for employee statuses
-      const response = await axios.get('http://localhost:5000/api/admin/employees/status', {
+      const response = await api.get('/api/admin/employees/status', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setEmployees(response.data);
