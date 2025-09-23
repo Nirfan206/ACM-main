@@ -1,13 +1,9 @@
-// AdminUsers.js
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../api'; 
 
-// API base URL for admin user management
-const API_URL = 'http://localhost:5000/api/admin/users';
-
 function AdminUsers() {
   const [users, setUsers] = useState([]);
-  const [activeTab, setActiveTab] = useState('customer'); // Use backend role names for tabs
+  const [activeTab, setActiveTab] = useState('customer');
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [form, setForm] = useState({
@@ -15,29 +11,27 @@ function AdminUsers() {
     email: '',
     phone: '',
     password: '',
-    role: 'customer', // Default to customer
+    role: 'customer',
     address: '',
   });
   const [loading, setLoading] = useState(true);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
-  const [searchTerm, setSearchTerm] = useState(''); // NEW: Search term state
+  const [searchTerm, setSearchTerm] = useState('');
 
   const locations = [
     'Guntur','Prakasam','Krishna','Vijayawada','Nellore',
     'Ongole','Tenali','Narasaraopet'
   ];
   
-  // Role mapping between display names and database values
   const roleDisplayMap = {
     'customer': 'Customer',
     'employee': 'Employee',
     'customercare': 'Customer Care',
     'admin': 'Admin'
   };
-  const roles = Object.keys(roleDisplayMap); // Array of backend role names
+  const roles = Object.keys(roleDisplayMap);
 
-  // Fetch users from database on mount
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -45,13 +39,13 @@ function AdminUsers() {
   async function fetchUsers() {
     try {
       setLoading(true);
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setSubmitError("Authentication required. Please log in.");
         setLoading(false);
         return;
       }
-      const { data } = await axios.get(API_URL, {
+      const { data } = await api.get('/api/admin/users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(data);
@@ -73,7 +67,7 @@ function AdminUsers() {
         name: user.profile?.name || '',
         email: user.profile?.email || '',
         phone: user.phone || '',
-        password: '', // Don't populate password for security
+        password: '',
         role: user.role || 'customer',
         address: user.profile?.address || ''
       });
@@ -90,7 +84,6 @@ function AdminUsers() {
     setSubmitError('');
     setSubmitSuccess('');
     try {
-      // Client-side validation
       if (!form.name.trim()) {
         setSubmitError('Name is required');
         return;
@@ -116,7 +109,7 @@ function AdminUsers() {
         return;
       }
 
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setSubmitError('You must be logged in');
         return;
@@ -127,7 +120,6 @@ function AdminUsers() {
         'Authorization': `Bearer ${token}`
       };
 
-      // Format user data according to the database schema
       const userData = {
         phone: form.phone.trim(),
         role: form.role,
@@ -138,26 +130,21 @@ function AdminUsers() {
         }
       };
 
-      // Only include password for new users or if password field is filled
       if (form.password.trim()) {
         userData.password = form.password.trim();
       }
 
-      console.log('Sending user data:', userData); // Added console log
-
       if (editingUser) {
-        // Update existing user
-        await axios.put(`${API_URL}/${editingUser._id}`, userData, { headers });
+        await api.put(`/api/admin/users/${editingUser._id}`, userData, { headers });
         setSubmitSuccess('User updated successfully');
       } else {
-        // Create new user
-        await axios.post(API_URL, userData, { headers });
+        await api.post('/api/admin/users', userData, { headers });
         setSubmitSuccess('User created successfully');
       }
       
       setShowModal(false);
-      fetchUsers(); // Refresh the list
-      setTimeout(() => setSubmitSuccess(''), 3000); // Clear success message
+      fetchUsers();
+      setTimeout(() => setSubmitSuccess(''), 3000);
     } catch (error) {
       console.error('Error saving user:', error);
       setSubmitError(error.response?.data?.message || error.message);
@@ -169,17 +156,17 @@ function AdminUsers() {
     setSubmitError('');
     setSubmitSuccess('');
     try {
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setSubmitError("Authentication required. Please log in.");
         return;
       }
-      await axios.delete(`${API_URL}/${id}`, {
+      await api.delete(`/api/admin/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       await fetchUsers();
       setSubmitSuccess('User deleted successfully');
-      setTimeout(() => setSubmitSuccess(''), 3000); // Clear success message
+      setTimeout(() => setSubmitSuccess(''), 3000);
     } catch (err) {
       console.error('Delete failed', err);
       setSubmitError(`Error deleting user: ${err.response?.data?.message || 'Unknown error'}`);
@@ -217,7 +204,6 @@ function AdminUsers() {
         </div>
       )}
 
-      {/* Search Input */}
       <div className="form-group" style={{ marginBottom: '20px' }}>
         <input
           type="text"
@@ -228,7 +214,6 @@ function AdminUsers() {
         />
       </div>
 
-      {/* Tabs */}
       <div className="tab-nav">
         {roles.map(r => (
           <button
@@ -241,7 +226,6 @@ function AdminUsers() {
         ))}
       </div>
 
-      {/* Add User Button */}
       <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '1rem' }}>
         <button
           onClick={()=>openModal()}
@@ -251,7 +235,6 @@ function AdminUsers() {
         </button>
       </div>
 
-      {/* Table */}
       <div>
         <table className="data-table">
           <thead>
@@ -297,7 +280,6 @@ function AdminUsers() {
         </table>
       </div>
 
-      {/* Modal for Add/Edit */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
