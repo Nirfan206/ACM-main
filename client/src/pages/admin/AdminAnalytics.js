@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api'; // You might need to adjust the path (e.g., '../../api')
+import api from '../api'; // This import is correct
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../../utils/authUtils'; // Import logout utility
 
 function AdminAnalytics() {
   const [analyticsData, setAnalyticsData] = useState({
     totalBookings: 0,
-    // totalRevenue: 0, // Removed
     employeePerformance: [],
   });
   const [loading, setLoading] = useState(true);
@@ -18,23 +17,27 @@ function AdminAnalytics() {
       try {
         setLoading(true);
         setError('');
-        const token = sessionStorage.getItem('token'); // Changed from localStorage
+        const token = sessionStorage.getItem('token');
         if (!token) {
-          logout(); // Use utility for logout
-          navigate('/login'); // Redirect to login if no token
+          logout();
+          navigate('/login');
           return;
         }
 
-        const response = await axios.get('http://localhost:5000/api/analytics', {
+        // --- THIS IS THE LINE I FIXED ---
+        // It now uses 'api' instead of 'axios' and a relative URL.
+        const response = await api.get('/api/analytics', {
           headers: { Authorization: `Bearer ${token}` },
         });
+        // --- END OF FIX ---
+        
         setAnalyticsData(response.data);
       } catch (err) {
         console.error('Error fetching analytics:', err);
         setError(err.response?.data?.message || 'Failed to load analytics data.');
         if (err.response?.status === 401 || err.response?.status === 403) {
-          logout(); // Use utility for logout
-          navigate('/login'); // Redirect if unauthorized or forbidden
+          logout();
+          navigate('/login');
         }
       } finally {
         setLoading(false);
@@ -76,14 +79,8 @@ function AdminAnalytics() {
           <p className="text-2xl font-bold text-secondary">{analyticsData.totalBookings}</p>
         </div>
 
-        {/* Removed Total Revenue Card */}
-        {/* <div className="card text-center bg-light">
-          <h4>Total Revenue</h4>
-          <p className="text-2xl font-bold text-primary">₹{analyticsData.totalRevenue.toFixed(2)}</p>
-        </div> */}
-
         <div className="card text-center bg-light">
-          <h4>Top Employee (by jobs)</h4> {/* Updated title */}
+          <h4>Top Employee (by jobs)</h4>
           <p className="text-xl font-bold text-accent">
             {topEmployee.name} ({topEmployee.jobsCompleted} jobs)
           </p>
@@ -91,7 +88,7 @@ function AdminAnalytics() {
       </div>
 
       <div className="mt-8">
-        <h4 className="mb-4 text-dark">Employee Performance (Job Counts)</h4> {/* Updated title */}
+        <h4 className="mb-4 text-dark">Employee Performance (Job Counts)</h4>
         {analyticsData.employeePerformance.length === 0 ? (
           <p className="text-center text-light">No employee performance data available.</p>
         ) : (
