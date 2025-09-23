@@ -29,16 +29,16 @@ function EmployeeProfile() {
   // Function to fetch the profile data
   const fetchProfile = async () => {
     try {
-      const token = sessionStorage.getItem("token"); // Changed from localStorage
+      const token = sessionStorage.getItem("token");
       if (!token) {
-        logout(); // Use utility for logout
+        logout();
         navigate("/login");
         return;
       }
       setLoading(true);
       setProfileError("");
       
-      const profileRes = await axios.get("http://localhost:5000/api/employee/profile", {
+      const profileRes = await api.get("/api/employee/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -75,7 +75,7 @@ function EmployeeProfile() {
     setProfileError("");
     setProfileSuccess("");
     try {
-      const token = sessionStorage.getItem("token"); // Changed from localStorage
+      const token = sessionStorage.getItem("token");
       
       const profileData = {
         profile: {
@@ -86,8 +86,8 @@ function EmployeeProfile() {
         phone: profile.phone 
       };
       
-      await axios.put(
-        "http://localhost:5000/api/employee/profile",
+      await api.put(
+        "/api/employee/profile",
         profileData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -128,9 +128,9 @@ function EmployeeProfile() {
     }
     
     try {
-      const token = sessionStorage.getItem("token"); // Changed from localStorage
-      await axios.put(
-        "http://localhost:5000/api/employee/password",
+      const token = sessionStorage.getItem("token");
+      await api.put(
+        "/api/employee/password",
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword
@@ -158,7 +158,7 @@ function EmployeeProfile() {
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to log out?")) {
-      logout(); // Use utility for logout
+      logout();
       navigate("/login");
     }
   };
