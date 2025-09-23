@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api'; 
+import { login } from '../utils/authUtils'; // --- 1. IMPORT THE CENTRAL LOGIN FUNCTION ---
 
 function LoginPage() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -41,7 +41,6 @@ function LoginPage() {
     }
 
     try {
-      // Corrected API call using the central 'api' client
       const response = await api.post('/api/auth/login', {
         phone,
         password
@@ -49,9 +48,9 @@ function LoginPage() {
 
       const { token, user: { role: userRole } } = response.data;
       
-      sessionStorage.setItem('token', token);
-      sessionStorage.setItem('isLoggedIn', 'true');
-      sessionStorage.setItem('role', userRole);
+      // --- 2. USE THE CENTRAL LOGIN FUNCTION ---
+      // This replaces the three separate sessionStorage.setItem calls
+      login(token, userRole);
 
       console.log('Login successful:', { role: userRole });
 
