@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from '../api'; // You might need to adjust the path (e.g., '../../api')
 import { useNavigate, Link } from "react-router-dom";
 
 function RegisterPage() {
