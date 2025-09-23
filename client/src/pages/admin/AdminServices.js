@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import api from '../../api';
+import React, { useEffect, useState } from "react";
+import api from "../../api";
 
 function AdminServices() {
   const [services, setServices] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [form, setForm] = useState({
-    type: '',
-    description: '',
-    category: ''
+    type: "",
+    description: "",
+    category: ""
   });
   const [loading, setLoading] = useState(true);
-  const [submitError, setSubmitError] = useState('');
-  const [submitSuccess, setSubmitSuccess] = useState('');
+  const [submitError, setSubmitError] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState("");
 
   useEffect(() => {
     fetchServices();
@@ -21,57 +21,60 @@ function AdminServices() {
   async function fetchServices() {
     try {
       setLoading(true);
-      setSubmitError('');
-      const token = sessionStorage.getItem('token');
+      setSubmitError("");
+      const token = sessionStorage.getItem("token");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const { data } = await api.get('/api/services', { headers });
-      setServices(data);
+      const { data } = await api.get("/api/services", { headers });
+      setServices(data || []);
     } catch (err) {
-      console.error('Error fetching services:', err);
-      setSubmitError(err.response?.data?.message || 'Failed to load services. Please try again.');
+      console.error("Error fetching services:", err);
+      setSubmitError(
+        err.response?.data?.message || "Failed to load services. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   }
 
   function openModal(service = null) {
-    setSubmitError('');
-    setSubmitSuccess('');
+    setSubmitError("");
+    setSubmitSuccess("");
     if (service) {
       setEditingService(service);
       setForm({
-        type: service.type || '',
-        description: service.description || '',
-        category: service.category || ''
+        type: service.type || "",
+        description: service.description || "",
+        category: service.category || ""
       });
     } else {
       setEditingService(null);
-      setForm({ type: '', description: '', category: '' });
+      setForm({ type: "", description: "", category: "" });
     }
     setShowModal(true);
   }
 
-  async function saveService() {
-    setSubmitError('');
-    setSubmitSuccess('');
+  async function saveService(e) {
+    if (e?.preventDefault) e.preventDefault(); // ensure no page refresh
+    setSubmitError("");
+    setSubmitSuccess("");
     try {
       if (!form.type.trim()) {
-        setSubmitError('Service Type is required');
+        setSubmitError("Service Type is required");
         return;
       }
       if (!form.category.trim()) {
-        setSubmitError('Category is required');
+        setSubmitError("Category is required");
         return;
       }
 
-      const token = sessionStorage.getItem('token');
+      const token = sessionStorage.getItem("token");
       if (!token) {
-        setSubmitError('Authentication required. Please log in.');
+        setSubmitError("Authentication required. Please log in.");
         return;
       }
 
       const headers = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       };
 
@@ -83,40 +86,52 @@ function AdminServices() {
 
       if (editingService) {
         await api.put(`/api/services/${editingService._id}`, serviceData, { headers });
-        setSubmitSuccess('Service updated successfully');
+        // Optimistic update
+        setServices((prev) =>
+          prev.map((s) => (s._id === editingService._id ? { ...s, ...serviceData } : s))
+        );
+        setSubmitSuccess("Service updated successfully");
       } else {
-        await api.post('/api/services', serviceData, { headers });
-        setSubmitSuccess('Service created successfully');
+        const res = await api.post("/api/services", serviceData, { headers });
+        const created = res.data;
+        setSubmitSuccess("Service created successfully");
+        if (created && created._id) {
+          setServices((prev) => [created, ...prev]);
+        } else {
+          await fetchServices();
+        }
       }
 
       setShowModal(false);
-      fetchServices();
-      setTimeout(() => setSubmitSuccess(''), 3000);
+      setTimeout(() => setSubmitSuccess(""), 3000);
     } catch (error) {
-      console.error('Error saving service:', error);
+      console.error("Error saving service:", error);
       setSubmitError(error.response?.data?.message || error.message);
     }
   }
 
   async function deleteService(id) {
-    if (!window.confirm('Are you sure you want to delete this service?')) return;
-    setSubmitError('');
-    setSubmitSuccess('');
+    if (!window.confirm("Are you sure you want to delete this service?")) return;
+    setSubmitError("");
+    setSubmitSuccess("");
     try {
-      const token = sessionStorage.getItem('token');
+      const token = sessionStorage.getItem("token");
       if (!token) {
-        setSubmitError('Authentication required. Please log in.');
+        setSubmitError("Authentication required. Please log in.");
         return;
       }
       await api.delete(`/api/services/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      await fetchServices();
-      setSubmitSuccess('Service deleted successfully');
-      setTimeout(() => setSubmitSuccess(''), 3000);
+      // Optimistic remove
+      setServices((prev) => prev.filter((s) => s._id !== id));
+      setSubmitSuccess("Service deleted successfully");
+      setTimeout(() => setSubmitSuccess(""), 3000);
     } catch (err) {
-      console.error('Delete failed', err);
-      setSubmitError(`Error deleting service: ${err.response?.data?.message || 'Unknown error'}`);
+      console.error("Delete failed", err);
+      setSubmitError(
+        `Error deleting service: ${err.response?.data?.message || "Unknown error"}`
+      );
     }
   }
 
@@ -131,12 +146,15 @@ function AdminServices() {
 
   return (
     <div className="admin-page-container">
-      <h2 className="page-title">Service Management</h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2 className="page-title">Service Management</h2>
+        <button onClick={fetchServices} className="btn btn-outline">Refresh</button>
+      </div>
 
       {submitError && <div className="status-message error">{submitError}</div>}
       {submitSuccess && <div className="status-message success">{submitSuccess}</div>}
 
-      <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '1rem' }}>
+      <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1rem" }}>
         <button onClick={() => openModal()} className="btn btn-accent">
           ➕ Add New Service
         </button>
@@ -156,7 +174,9 @@ function AdminServices() {
           <tbody>
             {services.length === 0 ? (
               <tr>
-                <td colSpan="5" className="text-center">No services found.</td>
+                <td colSpan="5" className="text-center">
+                  No services found.
+                </td>
               </tr>
             ) : (
               services.map((service) => (
@@ -165,13 +185,27 @@ function AdminServices() {
                   <td>{service.description}</td>
                   <td>{service.category}</td>
                   <td>
-                    <span className={`status-badge ${service.status === 'active' ? 'status-success' : 'status-error'}`}>
+                    <span
+                      className={`status-badge ${
+                        service.status === "active" ? "status-success" : "status-error"
+                      }`}
+                    >
                       {service.status}
                     </span>
                   </td>
                   <td>
-                    <button onClick={() => openModal(service)} className="btn btn-secondary btn-sm">Edit</button>
-                    <button onClick={() => deleteService(service._id)} className="btn btn-danger btn-sm">Delete</button>
+                    <button
+                      onClick={() => openModal(service)}
+                      className="btn btn-secondary btn-sm"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteService(service._id)}
+                      className="btn btn-danger btn-sm"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))
@@ -183,31 +217,62 @@ function AdminServices() {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h3 className="modal-title">{editingService ? 'Edit Service' : 'Add New Service'}</h3>
+            <h3 className="modal-title">
+              {editingService ? "Edit Service" : "Add New Service"}
+            </h3>
 
-            <div className="form-group">
-              <label>Service Type:</label>
-              <input name="type" type="text" value={form.type} onChange={handleChange} className="form-control" required />
-            </div>
+            <form onSubmit={saveService}>
+              <div className="form-group">
+                <label>Service Type:</label>
+                <input
+                  name="type"
+                  type="text"
+                  value={form.type}
+                  onChange={handleChange}
+                  className="form-control"
+                  required
+                />
+              </div>
 
-            <div className="form-group">
-              <label>Description:</label>
-              <textarea name="description" value={form.description} onChange={handleChange} className="form-control" />
-            </div>
+              <div className="form-group">
+                <label>Description:</label>
+                <textarea
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  className="form-control"
+                />
+              </div>
 
-            <div className="form-group">
-              <label>Category:</label>
-              <input name="category" type="text" value={form.category} onChange={handleChange} className="form-control" required />
-            </div>
+              <div className="form-group">
+                <label>Category:</label>
+                <input
+                  name="category"
+                  type="text"
+                  value={form.category}
+                  onChange={handleChange}
+                  className="form-control"
+                  required
+                />
+              </div>
 
-            <div className="modal-actions">
-              <button type="button" onClick={() => setShowModal(false)} className="btn btn-outline">
-                Cancel
-              </button>
-              <button type="button" onClick={saveService} className="btn btn-primary" disabled={!form.type.trim() || !form.category.trim()}>
-                Save
-              </button>
-            </div>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="btn btn-outline"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={!form.type.trim() || !form.category.trim()}
+                >
+                  Save
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
