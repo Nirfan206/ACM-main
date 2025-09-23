@@ -1,4 +1,3 @@
-// client/src/pages/CustomerProfile.js
 import React, { useState, useEffect } from "react";
 import api from '../api'; 
 import { useNavigate } from "react-router-dom";
@@ -27,23 +26,21 @@ function CustomerProfile() {
 
   const navigate = useNavigate();
 
-  // Function to fetch the profile data and service history
   const fetchProfile = async () => {
     try {
-      const token = sessionStorage.getItem("token"); // Changed from localStorage
+      const token = sessionStorage.getItem("token");
       if (!token) {
-        logout(); // Use utility for logout
+        logout();
         navigate("/login");
         return;
       }
       setLoading(true);
       
       // Fetch profile data
-      const profileRes = await axios.get("http://localhost:5000/api/customer/profile", {
+      const profileRes = await api.get("/api/customer/profile", {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      // Map the data from the User model structure
       const userData = profileRes.data;
       setProfile({
         name: userData.profile?.name || "",
@@ -52,8 +49,8 @@ function CustomerProfile() {
         address: userData.profile?.address || ""
       });
       
-      // Fetch service history, ensuring service details are populated
-      const bookingsRes = await axios.get("http://localhost:5000/api/customer/bookings", {
+      // Fetch service history
+      const bookingsRes = await api.get("/api/customer/bookings", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setServiceHistory(bookingsRes.data);
@@ -80,9 +77,8 @@ function CustomerProfile() {
     e.preventDefault();
     setSaving(true);
     try {
-      const token = sessionStorage.getItem("token"); // Changed from localStorage
+      const token = sessionStorage.getItem("token");
       
-      // Format the data according to the User model structure
       const profileData = {
         profile: {
           name: profile.name,
@@ -92,16 +88,14 @@ function CustomerProfile() {
         phone: profile.phone
       };
       
-      await axios.put(
-        "http://localhost:5000/api/customer/profile",
+      await api.put(
+        "/api/customer/profile",
         profileData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setEditMode(false);
-      // Re-fetch the data after a successful save to ensure the UI is in sync
       await fetchProfile();
       
-      // Show success message or notification
       alert("Profile updated successfully!");
     } catch (err) {
       console.error("❌ Failed to save profile:", err);
@@ -118,7 +112,6 @@ function CustomerProfile() {
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData({ ...passwordData, [name]: value });
-    // Clear any previous error/success messages when user starts typing
     setPasswordError("");
     setPasswordSuccess("");
   };
@@ -126,22 +119,20 @@ function CustomerProfile() {
   const handlePasswordReset = async (e) => {
     e.preventDefault();
     
-    // Validate passwords match
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setPasswordError("New passwords do not match");
       return;
     }
     
-    // Validate password length
     if (passwordData.newPassword.length < 6) {
       setPasswordError("New password must be at least 6 characters");
       return;
     }
     
     try {
-      const token = sessionStorage.getItem("token"); // Changed from localStorage
-      await axios.put(
-        "http://localhost:5000/api/customer/password",
+      const token = sessionStorage.getItem("token");
+      await api.put(
+        "/api/customer/password",
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword
@@ -149,7 +140,6 @@ function CustomerProfile() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      // Reset form and show success message
       setPasswordData({
         currentPassword: "",
         newPassword: "",
@@ -157,7 +147,6 @@ function CustomerProfile() {
       });
       setPasswordSuccess("Password updated successfully");
       
-      // Hide success message after 3 seconds
       setTimeout(() => {
         setPasswordSuccess("");
       }, 3000);
@@ -174,7 +163,7 @@ function CustomerProfile() {
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to log out?")) {
-      logout(); // Use utility for logout
+      logout();
       navigate("/login");
     }
   };
@@ -201,13 +190,13 @@ function CustomerProfile() {
         <div className="form-group">
           <label>Phone:</label>
           <input
-                type="text"
-                name="phone"
-                value={profile.phone || ""}
-                onChange={handleChange}
-                disabled={true} // Phone number should not be editable
-                className="form-control"
-              />
+            type="text"
+            name="phone"
+            value={profile.phone || ""}
+            onChange={handleChange}
+            disabled={true}
+            className="form-control"
+          />
         </div>
 
         <div className="form-group">
@@ -281,7 +270,6 @@ function CustomerProfile() {
         </div>
       </form>
 
-      {/* Password Reset Form */}
       {showPasswordReset && (
         <div className="password-reset-section">
           <h4 style={{ textAlign: "center", marginBottom: "1rem" }}>Reset Password</h4>
@@ -344,7 +332,6 @@ function CustomerProfile() {
         </div>
       )}
       
-      {/* Service History Section */}
       <div className="service-history-section">
         <h4 style={{ textAlign: "center", marginBottom: "1rem" }}>Service History</h4>
         
