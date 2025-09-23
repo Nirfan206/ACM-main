@@ -1,29 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-//import axios from 'axios'; // Added this import
-import api from '../api'; // You might need to adjust the path (e.g., '../../api')
+import api from '../api'; 
+
 function LoginPage() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState(''); // This state is no longer strictly needed for login logic, but kept for now
+  const [role, setRole] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   
-  // Theme colors
   const themeColors = {
-    primary: '#16a34a',    // Green
-    secondary: '#0ea5e9',  // Blue
-    accent: '#f59e0b',     // Amber
-    light: '#f9fafb',      // Light gray
-    dark: '#374151',       // Dark gray
-    text: '#374151',       // Text color
-    textLight: '#6b7280',  // Light text
-    success: '#10b981',    // Success green
-    error: '#ef4444',      // Error red
+    primary: '#16a34a',
+    secondary: '#0ea5e9',
+    accent: '#f59e0b',
+    light: '#f9fafb',
+    dark: '#374151',
+    text: '#374151',
+    textLight: '#6b7280',
+    success: '#10b981',
+    error: '#ef4444',
   };
 
-  // Apply theme colors as CSS variables
   useEffect(() => {
     const root = document.documentElement;
     Object.entries(themeColors).forEach(([key, value]) => {
@@ -31,13 +29,11 @@ function LoginPage() {
     });
   }, []);
 
-  // NO MORE DEFAULT USERS - Only get from database/localStorage
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // Validate all fields
     if (!phone || !password) {
       setError('Please fill in all required fields');
       setLoading(false);
@@ -45,23 +41,20 @@ function LoginPage() {
     }
 
     try {
-      // Make API call to login endpoint
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      // Corrected API call using the central 'api' client
+      const response = await api.post('/api/auth/login', {
         phone,
         password
       });
 
-      // Get token and user info from response
-      const { token, user: { role: userRole } } = response.data; // Destructure role from user object
+      const { token, user: { role: userRole } } = response.data;
       
-      // Store token and role in sessionStorage (consistent with ProtectedRoute)
       sessionStorage.setItem('token', token);
       sessionStorage.setItem('isLoggedIn', 'true');
-      sessionStorage.setItem('role', userRole); // Store role for easier access
+      sessionStorage.setItem('role', userRole);
 
       console.log('Login successful:', { role: userRole });
 
-      // Navigate based on role
       switch (userRole) {
         case 'admin':
           navigate('/admin/users');
@@ -111,7 +104,6 @@ function LoginPage() {
       </div>
 
       <form onSubmit={handleSubmit}>
-        {/* Mobile Number Field */}
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ 
             display: 'block', 
@@ -141,7 +133,6 @@ function LoginPage() {
           />
         </div>
 
-        {/* Password Field */}
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ 
             display: 'block', 
@@ -170,8 +161,6 @@ function LoginPage() {
           />
         </div>
 
-        {/* Role selection is no longer needed as the API determines the role */}
-
         <button
           type="submit"
           disabled={loading || !phone || !password}
@@ -198,22 +187,21 @@ function LoginPage() {
           marginTop: '1rem', 
           textAlign: 'center',
           padding: '0.75rem',
-          backgroundColor: `${themeColors.error}15`,
+          backgroundColor: `rgba(239, 68, 68, 0.1)`,
           borderRadius: '6px',
-          border: `1px solid ${themeColors.error}30`
+          border: `1px solid rgba(239, 68, 68, 0.3)`
         }}>
           ⚠️ {error}
         </div>
       )}
 
-      {/* Information Box */}
       <div style={{ 
         marginTop: '1.5rem', 
         padding: '1rem',
-        backgroundColor: `${themeColors.secondary}10`,
+        backgroundColor: `rgba(14, 165, 233, 0.1)`,
         borderRadius: '6px',
         fontSize: '0.85rem',
-        border: `1px solid ${themeColors.secondary}30`
+        border: `1px solid rgba(14, 165, 233, 0.3)`
       }}>
         <div style={{ 
           fontWeight: 'bold', 
@@ -260,7 +248,7 @@ function LoginPage() {
         textAlign: 'center', 
         fontSize: '0.8rem', 
         color: themeColors.textLight,
-        backgroundColor: `${themeColors.light}80`,
+        backgroundColor: `rgba(249, 250, 251, 0.8)`,
         padding: '0.5rem',
         borderRadius: '4px'
       }}>
