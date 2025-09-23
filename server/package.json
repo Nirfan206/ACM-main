@@ -4,11 +4,10 @@
   "description": "Backend for AL CHAAN MEERA appliance service app",
   "main": "index.js",
   
-  "scripts": {
+"scripts": {
   "start": "node index.js",
-  "build": "chmod +x node_modules/.bin/react-scripts && react-scripts build"
-
-  },
+  "build": "cd ../client && npm install && npm run build"
+},
   "dependencies": {
     "bcrypt": "^5.1.0",
     "bcryptjs": "^3.0.2",
