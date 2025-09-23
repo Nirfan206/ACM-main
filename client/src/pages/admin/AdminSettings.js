@@ -17,8 +17,8 @@ function AdminSettings() {
     const fetchSettings = async () => {
       try {
         setLoading(true);
-        const token = sessionStorage.getItem('token'); // Changed from localStorage
-        const response = await axios.get('http://localhost:5000/api/admin/settings', {
+        const token = sessionStorage.getItem('token');
+        const response = await api.get('/api/admin/settings', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setSettings(response.data);
@@ -49,9 +49,9 @@ function AdminSettings() {
       setError('');
       setSuccess('');
       
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
-      await axios.put(
-        'http://localhost:5000/api/admin/settings',
+      const token = sessionStorage.getItem('token');
+      await api.put(
+        '/api/admin/settings',
         settings,
         { headers: { Authorization: `Bearer ${token}` } }
       );
