@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import api from '../../api';
-
-
-import { useNavigate } from 'react-router-dom';
-import { logout } from '../../utils/authUtils'; // Import logout utility
+import React, { useEffect, useState } from "react";
+import api from "../../api";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../../utils/authUtils";
 
 function CustomerBookings() {
   const [bookings, setBookings] = useState([]);
@@ -14,95 +12,122 @@ function CustomerBookings() {
   const [availableServices, setAvailableServices] = useState([]);
   const [customerProfile, setCustomerProfile] = useState(null);
   const [newBookingForm, setNewBookingForm] = useState({
-    service: '',
-    problem: '',
-    problemDescription: '',
-    date: '',
-    time: '',
-    address: '',
+    service: "",
+    problem: "",
+    problemDescription: "",
+    date: "",
+    time: "",
+    address: ""
   });
+
   const navigate = useNavigate();
 
   const serviceProblems = {
-    'AC': ['AC not cooling', 'Water leakage from AC', 'AC making noise', 'AC not turning on', 'Bad odor from AC', 'AC gas refilling'],
-    'Fridge': ['Fridge not cooling', 'Water leakage from fridge', 'Fridge making noise', 'Fridge not turning on', 'Excessive frosting', 'Door seal broken'],
-    'Washing Machine': ['Washing machine not draining', 'Washing machine not spinning', 'Washing machine making noise', 'Washing machine not turning on', 'Water leakage from washing machine', 'Drum not rotating'],
-    'Electrical': ['Power outage in specific area', 'Faulty wiring', 'Socket repair/replacement', 'Light fixture installation/repair', 'Circuit breaker tripping', 'Fan repair/installation'],
-    'Other': []
+    AC: [
+      "AC not cooling",
+      "Water leakage from AC",
+      "AC making noise",
+      "AC not turning on",
+      "Bad odor from AC",
+      "AC gas refilling"
+    ],
+    Fridge: [
+      "Fridge not cooling",
+      "Water leakage from fridge",
+      "Fridge making noise",
+      "Fridge not turning on",
+      "Excessive frosting",
+      "Door seal broken"
+    ],
+    "Washing Machine": [
+      "Washing machine not draining",
+      "Washing machine not spinning",
+      "Washing machine making noise",
+      "Washing machine not turning on",
+      "Water leakage from washing machine",
+      "Drum not rotating"
+    ],
+    Electrical: [
+      "Power outage in specific area",
+      "Faulty wiring",
+      "Socket repair/replacement",
+      "Light fixture installation/repair",
+      "Circuit breaker tripping",
+      "Fan repair/installation"
+    ],
+    Other: []
   };
 
   const fetchData = async () => {
     try {
-      const token = sessionStorage.getItem('token');
+      const token = sessionStorage.getItem("token");
       if (!token) {
         logout();
-        navigate('/login');
+        navigate("/login", { replace: true });
         return;
       }
-      
+
       setLoading(true);
-      // Fetch bookings
-      const bookingsResponse = await api.get('/api/customer/bookings', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setBookings(bookingsResponse.data);
+      const headers = { Authorization: `Bearer ${token}` };
 
-      // Fetch services
-      const servicesResponse = await api.get('/api/services');
-      setAvailableServices(servicesResponse.data);
+      const [bookingsRes, servicesRes, profileRes] = await Promise.all([
+        api.get("/api/customer/bookings", { headers }),
+        api.get("/api/services"),
+        api.get("/api/customer/profile", { headers })
+      ]);
 
-      // Fetch customer profile
-      const profileResponse = await api.get('/api/customer/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setCustomerProfile(profileResponse.data);
-      setNewBookingForm(prev => ({ ...prev, address: profileResponse.data.profile?.address || '' }));
+      setBookings(bookingsRes.data || []);
+      setAvailableServices(servicesRes.data || []);
+      setCustomerProfile(profileRes.data || null);
+      setNewBookingForm((prev) => ({
+        ...prev,
+        address: profileRes.data?.profile?.address || ""
+      }));
 
       setError(null);
     } catch (err) {
-      console.error('Error fetching data:', err);
-      setError(err.response?.data?.message || 'Failed to load data. Please try again later.');
-      if (err.response?.status === 401 || err.response?.status === 403) {
+      console.error("Error fetching data:", err);
+      setError(err.response?.data?.message || "Failed to load data. Please try again later.");
+      const s = err.response?.status;
+      if (s === 401 || s === 403) {
         logout();
-        navigate('/login');
+        navigate("/login", { replace: true });
       }
     } finally {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
+    // Initial fetch only; removed 5s polling interval
     fetchData();
-    const intervalId = setInterval(fetchData, 5000);
-    return () => clearInterval(intervalId);
   }, [navigate]);
 
   const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) {
-      return;
-    }
-    
+    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+
     try {
-      const token = sessionStorage.getItem('token');
-      await api.delete(`/api/customer/bookings/${bookingId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      setSuccess('Booking cancelled successfully!');
-      fetchData();
+      const token = sessionStorage.getItem("token");
+      const headers = { Authorization: `Bearer ${token}` };
+
+      await api.delete(`/api/customer/bookings/${bookingId}`, { headers });
+
+      setSuccess("Booking cancelled successfully!");
+      // Optimistic update
+      setBookings((prev) => prev.filter((b) => b._id !== bookingId));
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      console.error('Error cancelling booking:', err);
-      setError(err.response?.data?.message || 'Failed to cancel booking. Please try again.');
+      console.error("Error cancelling booking:", err);
+      setError(err.response?.data?.message || "Failed to cancel booking. Please try again.");
       setTimeout(() => setError(null), 3000);
     }
   };
 
   const handleNewBookingChange = (e) => {
     const { name, value } = e.target;
-    setNewBookingForm(prev => ({ ...prev, [name]: value }));
-    if (name === 'service') {
-      setNewBookingForm(prev => ({ ...prev, problem: '', problemDescription: '' }));
+    setNewBookingForm((prev) => ({ ...prev, [name]: value }));
+    if (name === "service") {
+      setNewBookingForm((prev) => ({ ...prev, problem: "", problemDescription: "" }));
     }
   };
 
@@ -111,70 +136,85 @@ function CustomerBookings() {
     setError(null);
     setSuccess(null);
 
-    const selectedService = availableServices.find(s => s._id === newBookingForm.service);
+    const selectedService = availableServices.find((s) => s._id === newBookingForm.service);
     if (!selectedService) {
-      setError('Please select a service.');
+      setError("Please select a service.");
       return;
     }
 
     let finalProblemDescription = newBookingForm.problem;
-    if (newBookingForm.problem === 'Other' && newBookingForm.problemDescription.trim()) {
+    if (newBookingForm.problem === "Other" && newBookingForm.problemDescription.trim()) {
       finalProblemDescription = newBookingForm.problemDescription.trim();
-    } else if (newBookingForm.problem === 'Other' && !newBookingForm.problemDescription.trim()) {
+    } else if (newBookingForm.problem === "Other" && !newBookingForm.problemDescription.trim()) {
       setError('Please describe your problem if you selected "Other".');
       return;
     } else if (!newBookingForm.problem) {
-      setError('Please select a problem or describe it.');
+      setError("Please select a problem or describe it.");
       return;
     }
 
     if (!newBookingForm.date || !newBookingForm.time || !newBookingForm.address.trim()) {
-      setError('Please fill all required fields (Date, Time, Address).');
+      setError("Please fill all required fields (Date, Time, Address).");
       return;
     }
 
     try {
-      const token = sessionStorage.getItem('token');
-      await api.post('/api/customer/bookings', {
-        service: newBookingForm.service,
-        date: newBookingForm.date,
-        time: newBookingForm.time,
-        address: newBookingForm.address.trim(),
-        problemDescription: finalProblemDescription,
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      setSuccess('Booking submitted successfully! Our team will contact you shortly.');
+      const token = sessionStorage.getItem("token");
+      const headers = { Authorization: `Bearer ${token}` };
+
+      const res = await api.post(
+        "/api/customer/bookings",
+        {
+          service: newBookingForm.service,
+          date: newBookingForm.date,
+          time: newBookingForm.time,
+          address: newBookingForm.address.trim(),
+          problemDescription: finalProblemDescription
+        },
+        { headers }
+      );
+
+      // Optimistic prepend of new booking if API returns it; otherwise refetch.
+      const created = res.data;
+      if (created && created._id) {
+        setBookings((prev) => [created, ...prev]);
+      } else {
+        fetchData();
+      }
+
+      setSuccess("Booking submitted successfully! Our team will contact shortly.");
       setShowNewBookingModal(false);
       setNewBookingForm({
-        service: '', problem: '', problemDescription: '', date: '', time: '', address: customerProfile?.profile?.address || ''
+        service: "",
+        problem: "",
+        problemDescription: "",
+        date: "",
+        time: "",
+        address: customerProfile?.profile?.address || ""
       });
-      fetchData();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      console.error('Error creating booking:', err);
-      setError(err.response?.data?.message || 'Failed to create booking. Please try again.');
+      console.error("Error creating booking:", err);
+      setError(err.response?.data?.message || "Failed to create booking. Please try again.");
       setTimeout(() => setError(null), 3000);
     }
   };
 
   const getServiceCategory = (serviceId) => {
-    const service = availableServices.find(s => s._id === serviceId);
-    return service ? service.category : 'Other';
+    const service = availableServices.find((s) => s._id === serviceId);
+    return service ? service.category : "Other";
   };
 
   const getProblemsForCategory = (category) => {
-    return serviceProblems[category] || serviceProblems['Other'];
+    return serviceProblems[category] || serviceProblems.Other;
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString(undefined, {
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString(undefined, {
       year: "numeric",
       month: "short",
-      day: "numeric",
+      day: "numeric"
     });
-  };
 
   if (loading) {
     return (
@@ -186,12 +226,15 @@ function CustomerBookings() {
 
   return (
     <div className="card profile-container">
-      <h3 className="card-title text-center">📑 My Bookings</h3>
-      
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h3 className="card-title text-center">📑 My Bookings</h3>
+        <button onClick={fetchData} className="btn btn-outline">Refresh</button>
+      </div>
+
       {error && <div className="status-message error">{error}</div>}
       {success && <div className="status-message success">{success}</div>}
 
-      <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '1rem' }}>
+      <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1rem" }}>
         <button onClick={() => setShowNewBookingModal(true)} className="btn btn-primary">
           ➕ Create New Booking
         </button>
@@ -199,7 +242,9 @@ function CustomerBookings() {
 
       <div>
         {bookings.length === 0 ? (
-          <p className="text-center text-light">No bookings found. Book a service to see your bookings here.</p>
+          <p className="text-center text-light">
+            No bookings found. Book a service to see your bookings here.
+          </p>
         ) : (
           <table className="data-table">
             <thead>
@@ -218,26 +263,35 @@ function CustomerBookings() {
               {bookings.map((booking) => (
                 <tr key={booking._id}>
                   <td>{booking._id.substring(0, 8)}</td>
-                  <td>{booking.service?.type || 'N/A'}</td>
-                  <td>{booking.problemDescription || 'N/A'}</td>
-                  <td>{formatDate(booking.date)} at {booking.time}</td>
-                  <td>{booking.address || 'N/A'}</td>
+                  <td>{booking.service?.type || "N/A"}</td>
+                  <td>{booking.problemDescription || "N/A"}</td>
                   <td>
-                    <span className={`status-badge status-${booking.status.toLowerCase().replace(' ', '-').replace('awaiting-admin-confirmation', 'pending')}`}>
-                      {booking.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
+                    {formatDate(booking.date)} at {booking.time}
+                  </td>
+                  <td>{booking.address || "N/A"}</td>
+                  <td>
+                    <span
+                      className={`status-badge status-${booking.status
+                        .toLowerCase()
+                        .replace(" ", "-")
+                        .replace("awaiting-admin-confirmation", "pending")}`}
+                    >
+                      {booking.status
+                        .replace(" - ", " ")
+                        .replace("awaiting admin confirmation", "Awaiting Admin")}
                     </span>
                   </td>
                   <td>
                     {booking.employee ? (
                       <>
-                        {booking.employee.profile?.name || 'N/A'}
+                        {booking.employee.profile?.name || "N/A"}
                         <br />
                         <a href={`tel:${booking.employee.phone}`} className="text-secondary">
-                          {booking.employee.phone || 'N/A'}
+                          {booking.employee.phone || "N/A"}
                         </a>
                       </>
                     ) : (
-                      'Not Assigned'
+                      "Not Assigned"
                     )}
                   </td>
                   <td>
@@ -273,7 +327,9 @@ function CustomerBookings() {
                 >
                   <option value="">Select Service</option>
                   {availableServices.map((service) => (
-                    <option key={service._id} value={service._id}>{service.type}</option>
+                    <option key={service._id} value={service._id}>
+                      {service.type}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -289,15 +345,19 @@ function CustomerBookings() {
                     required
                   >
                     <option value="">Select Problem</option>
-                    {getProblemsForCategory(getServiceCategory(newBookingForm.service)).map((problem, index) => (
-                      <option key={index} value={problem}>{problem}</option>
-                    ))}
+                    {getProblemsForCategory(getServiceCategory(newBookingForm.service)).map(
+                      (problem, index) => (
+                        <option key={index} value={problem}>
+                          {problem}
+                        </option>
+                      )
+                    )}
                     <option value="Other">Other (Please specify below)</option>
                   </select>
                 </div>
               )}
 
-              {newBookingForm.problem === 'Other' && (
+              {newBookingForm.problem === "Other" && (
                 <div className="form-group">
                   <label>Problem Description:</label>
                   <textarea
@@ -308,7 +368,7 @@ function CustomerBookings() {
                     rows="3"
                     placeholder="Describe your problem in detail..."
                     required
-                  ></textarea>
+                  />
                 </div>
               )}
 
@@ -345,7 +405,7 @@ function CustomerBookings() {
                   className="form-control"
                   rows="3"
                   required
-                ></textarea>
+                />
               </div>
 
               <div className="modal-actions">
@@ -356,10 +416,7 @@ function CustomerBookings() {
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                >
+                <button type="submit" className="btn btn-primary">
                   Submit Booking
                 </button>
               </div>
