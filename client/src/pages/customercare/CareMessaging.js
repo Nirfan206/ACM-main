@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from '../api'; 
+
 function CareMessaging() {
   const [messages, setMessages] = useState([]); // This will store sent messages locally for display
   const [input, setInput] = useState("");
@@ -27,7 +28,7 @@ function CareMessaging() {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setError("Authentication required. Please log in.");
         setLoading(false);
@@ -35,7 +36,7 @@ function CareMessaging() {
       }
       
       // Fetch bookings that are 'Pending' or 'In Progress' for customer care to message about
-      const response = await axios.get("http://localhost:5000/api/customercare/requests", { // UPDATED endpoint
+      const response = await api.get("/api/customercare/requests", { // UPDATED endpoint
         headers: { Authorization: `Bearer ${token}` }
       });
       setBookings(response.data);
@@ -56,14 +57,14 @@ function CareMessaging() {
     }
     
     try {
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setError("Authentication required. Please log in.");
         return;
       }
       
       // Call the backend's notifyCustomer endpoint
-      await axios.post("http://localhost:5000/api/customercare/notify", {
+      await api.post("/api/customercare/notify", {
         bookingId: selectedBooking,
         message: input.trim()
       }, {
@@ -92,7 +93,7 @@ function CareMessaging() {
         <div
           style={{
             padding: "10px",
-            backgroundColor: `var(--color-error)15`,
+            backgroundColor: `rgba(var(--color-error-rgb), 0.1)`,
             color: 'var(--color-error)',
             borderRadius: "5px",
             marginBottom: "15px",
@@ -105,7 +106,7 @@ function CareMessaging() {
         <div
           style={{
             padding: "10px",
-            backgroundColor: `var(--color-success)15`,
+            backgroundColor: `rgba(var(--color-success-rgb), 0.1)`,
             color: 'var(--color-success)',
             borderRadius: "5px",
             marginBottom: "15px",
@@ -127,7 +128,7 @@ function CareMessaging() {
             width: "100%",
             padding: "10px",
             borderRadius: "5px",
-            border: `1px solid var(--color-textLight)30`,
+            border: `1px solid rgba(var(--color-textLight-rgb), 0.3)`,
             marginBottom: "15px",
           }}
         >
@@ -166,7 +167,7 @@ function CareMessaging() {
                 transition: "background-color 0.3s ease",
               }}
             >
-              {msg} {/* Displaying the full message now */}
+              {msg}
             </button>
           ))}
         </div>
@@ -193,7 +194,7 @@ function CareMessaging() {
             <div
               key={index}
               style={{
-                backgroundColor: `var(--color-secondary)15`,
+                backgroundColor: `rgba(var(--color-secondary-rgb), 0.15)`,
                 padding: "8px",
                 borderRadius: "5px",
                 marginBottom: "8px",
@@ -216,7 +217,7 @@ function CareMessaging() {
           style={{
             flex: 1,
             padding: "10px",
-            border: `1px solid var(--color-textLight)30`,
+            border: `1px solid rgba(var(--color-textLight-rgb), 0.3)`,
             borderRadius: "5px",
           }}
         />
