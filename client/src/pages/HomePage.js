@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-//import axios from 'axios';
 import api from '../api';
-import Header from '../components/Header'; // Import Header component
-import Footer from '../components/Footer'; // Import Footer component
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const districts = ["Guntur", "Palnadu", "Prakasam"];
 
 function HomePage() {
   const [showBookingForm, setShowBookingForm] = useState(false);
-  const [customerProfile, setCustomerProfile] = useState(null); // To store logged-in user's profile
-  const [availableServices, setAvailableServices] = useState([]); // To store services from backend
+  const [customerProfile, setCustomerProfile] = useState(null);
+  const [availableServices, setAvailableServices] = useState([]);
   const [bookingData, setBookingData] = useState({
-    service: '', // Stores service ID
-    serviceName: '', // Stores service name for display
+    service: '',
+    serviceName: '',
     date: '',
     time: '',
     address: '',
@@ -25,13 +24,12 @@ function HomePage() {
 
   const isLoggedIn = !!sessionStorage.getItem('token');
 
-  // Fetch customer profile if logged in
   useEffect(() => {
     const fetchProfile = async () => {
       if (isLoggedIn) {
         try {
           const token = sessionStorage.getItem('token');
-          const response = await axios.get('http://localhost:5000/api/customer/profile', {
+          const response = await api.get('/api/customer/profile', {
             headers: { Authorization: `Bearer ${token}` }
           });
           setCustomerProfile(response.data);
@@ -45,11 +43,10 @@ function HomePage() {
     fetchProfile();
   }, [isLoggedIn, navigate]);
 
-  // Fetch available services
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/services');
+        const response = await api.get('/api/services');
         setAvailableServices(response.data);
       } catch (err) {
         console.error('Error fetching services:', err);
@@ -59,7 +56,6 @@ function HomePage() {
     fetchServices();
   }, []);
 
-  // Handle Book Now button click
   const handleBookNow = (serviceId = '', serviceName = '') => {
     if (!isLoggedIn) {
       navigate('/register');
@@ -71,12 +67,11 @@ function HomePage() {
         ...prev, 
         service: serviceId, 
         serviceName: serviceName,
-        address: customerProfile?.profile?.address || '' // Pre-fill address if available
+        address: customerProfile?.profile?.address || ''
       }));
     }
   };
 
-  // Handle booking form input changes
   const handleBookingChange = (e) => {
     const { name, value } = e.target;
     if (name === 'service') {
@@ -91,7 +86,6 @@ function HomePage() {
     }
   };
 
-  // Booking form submit
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     if (!bookingData.service || !bookingData.date || !bookingData.time || !bookingData.address) {
@@ -106,18 +100,17 @@ function HomePage() {
 
     try {
       const token = sessionStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/customer/bookings', {
+      await api.post('/api/customer/bookings', {
         service: bookingData.service,
         date: bookingData.date,
         time: bookingData.time,
         address: bookingData.address,
-        problemDescription: 'General booking from homepage' // Default problem description for homepage bookings
+        problemDescription: 'General booking from homepage'
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSuccess('Booking submitted successfully! Our team will contact you shortly.');
 
-      // Reset form
       setBookingData({
         service: '',
         serviceName: '',
@@ -145,11 +138,8 @@ function HomePage() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
       <Header />
-      {/* Added padding to main content to account for fixed header */}
-      <div style={{ paddingTop: '100px' }}> {/* Increased padding to 100px for more clearance */}
-        {/* Whatsapp and Call Now buttons section */}
+      <div style={{ paddingTop: '100px' }}>
         <br></br><br></br><br></br><br></br>
         <section style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', justifyContent: 'center', maxWidth: '900px', margin: '0 auto', width: '100%', paddingLeft: '20px', paddingRight: '20px' }}>
             <a href="https://wa.me/9966972228" style={{ textDecoration: 'none' }}>
@@ -164,17 +154,13 @@ function HomePage() {
             </a>
           </section>
 
-
-        {/* Main Content */}
         <main style={{ flex: 1, maxWidth: '900px', margin: '0 auto', width: '100%', padding: '20px' }}>
           
-
-          {/* Booking Form */}
           {showBookingForm && (
             <div style={{ maxWidth: '600px', margin: '0 auto 2rem', padding: '25px', backgroundColor: 'var(--color-light)', borderRadius: '12px', boxShadow: 'var(--shadow)', border: '1px solid var(--border)' }}>
               <h2 style={{ textAlign: 'center', marginBottom: '20px', color: 'var(--color-primary)' }}>Book Your Service</h2>
-              {error && <div style={{ padding: '10px', backgroundColor: 'var(--color-error)15', color: 'var(--color-error)', borderRadius: '5px', marginBottom: '15px' }}>{error}</div>}
-              {success && <div style={{ padding: '10px', backgroundColor: 'var(--color-success)15', color: 'var(--color-success)', borderRadius: '5px', marginBottom: '15px' }}>{success}</div>}
+              {error && <div style={{ padding: '10px', backgroundColor: 'rgba(var(--color-error-rgb), 0.15)', color: 'var(--color-error)', borderRadius: '5px', marginBottom: '15px' }}>{error}</div>}
+              {success && <div style={{ padding: '10px', backgroundColor: 'rgba(var(--color-success-rgb), 0.15)', color: 'var(--color-success)', borderRadius: '5px', marginBottom: '15px' }}>{success}</div>}
 
               <form onSubmit={handleBookingSubmit}>
                 <div style={{ marginBottom: '15px' }}>
@@ -239,24 +225,19 @@ function HomePage() {
             </div>
           )}
           <section style={{ textAlign: 'center', margin: '2rem 0' }}>
-  <h2 style={{ color: 'green', marginBottom: '1rem' }}>Our Services Video</h2>
-  <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px', boxShadow: 'var(--shadow)' }}>
-    <iframe
-      src="https://www.youtube.com/embed/wFKcZi7K2uM"
-      title="Our Services Video"
-      frameBorder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '12px' }}
-    ></iframe>
-  </div>
-</section>
+            <h2 style={{ color: 'green', marginBottom: '1rem' }}>Our Services Video</h2>
+            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px', boxShadow: 'var(--shadow)' }}>
+              <iframe
+                src="https://www.youtube.com/embed/wFKcZi7K2uM"
+                title="Our Services Video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '12px' }}
+              ></iframe>
+            </div>
+          </section>
 
-
-
-         
-
-          {/* Service Sections */}
           <section style={{ marginBottom: '3rem', padding: '20px', backgroundColor: 'var(--color-white)', borderRadius: '12px', boxShadow: 'var(--shadow)', border: '1px solid var(--border)' }}>
             <h2 style={{ color: 'var(--color-primary)', fontSize: '2rem', marginBottom: '1rem', textAlign: 'center' }}>Air Conditioner Repair & Service</h2>
             <p style={{ fontSize: '1.1rem', color: 'var(--color-text)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
@@ -289,7 +270,6 @@ function HomePage() {
           </section>
         </main>
       </div>
-      {/* Footer */}
       <Footer />
     </div>
   );
