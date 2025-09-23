@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api'; 
+import api from '../../api';
 import { useNavigate } from 'react-router-dom';
 import StarRating from '../../components/StarRating'; // Import the StarRating component
 import { logout } from '../../utils/authUtils'; // Import logout utility
