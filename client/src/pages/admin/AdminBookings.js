@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import api from '../api'; // This import is correct
+import api from '../../api';// This import is correct
 import { useNavigate } from 'react-router-dom';
 
 function AdminBookings() {
