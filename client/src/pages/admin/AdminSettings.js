@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api'; 
 
 function AdminSettings() {
   const [settings, setSettings] = useState({
