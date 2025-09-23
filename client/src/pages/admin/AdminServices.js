@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../../api';
 
 function AdminServices() {
@@ -8,11 +8,8 @@ function AdminServices() {
   const [form, setForm] = useState({
     type: '',
     description: '',
-    category: '',
-    imageUrl: '',
+    category: ''
   });
-  const [imageFile, setImageFile] = useState(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
@@ -27,7 +24,6 @@ function AdminServices() {
       setSubmitError('');
       const token = sessionStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      
       const { data } = await api.get('/api/services', { headers });
       setServices(data);
     } catch (err) {
@@ -41,55 +37,19 @@ function AdminServices() {
   function openModal(service = null) {
     setSubmitError('');
     setSubmitSuccess('');
-    setImageFile(null);
     if (service) {
       setEditingService(service);
       setForm({
         type: service.type || '',
         description: service.description || '',
-        category: service.category || '',
-        imageUrl: service.imageUrl || '',
+        category: service.category || ''
       });
     } else {
       setEditingService(null);
-      setForm({ type: '', description: '', category: '', imageUrl: '' });
+      setForm({ type: '', description: '', category: '' });
     }
     setShowModal(true);
   }
-
-  const handleImageFileChange = (e) => {
-    setImageFile(e.target.files[0]);
-    setSubmitError('');
-  };
-
-  const uploadImage = async () => {
-    if (!imageFile) {
-      setSubmitError('Please select an image to upload.');
-      return null;
-    }
-
-    setUploadingImage(true);
-    setSubmitError('');
-    try {
-      const token = sessionStorage.getItem('token');
-      const formData = new FormData();
-      formData.append('image', imageFile);
-
-      const response = await api.post('/api/upload/image', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      setUploadingImage(false);
-      return response.data.imageUrl;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      setSubmitError(error.response?.data?.message || 'Failed to upload image.');
-      setUploadingImage(false);
-      return null;
-    }
-  };
 
   async function saveService() {
     setSubmitError('');
@@ -104,19 +64,6 @@ function AdminServices() {
         return;
       }
 
-      let finalImageUrl = form.imageUrl;
-
-      if (imageFile) {
-        const uploadedUrl = await uploadImage();
-        if (!uploadedUrl) {
-          return;
-        }
-        finalImageUrl = uploadedUrl;
-      } else if (!finalImageUrl && !editingService) { // Image is required for new services
-        setSubmitError('Service Image is required.');
-        return;
-      }
-
       const token = sessionStorage.getItem('token');
       if (!token) {
         setSubmitError('Authentication required. Please log in.');
@@ -125,14 +72,13 @@ function AdminServices() {
 
       const headers = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`
       };
 
       const serviceData = {
         type: form.type.trim(),
         description: form.description.trim(),
-        category: form.category.trim(),
-        imageUrl: finalImageUrl,
+        category: form.category.trim()
       };
 
       if (editingService) {
@@ -142,7 +88,7 @@ function AdminServices() {
         await api.post('/api/services', serviceData, { headers });
         setSubmitSuccess('Service created successfully');
       }
-      
+
       setShowModal(false);
       fetchServices();
       setTimeout(() => setSubmitSuccess(''), 3000);
@@ -159,7 +105,7 @@ function AdminServices() {
     try {
       const token = sessionStorage.getItem('token');
       if (!token) {
-        setSubmitError("Authentication required. Please log in.");
+        setSubmitError('Authentication required. Please log in.');
         return;
       }
       await api.delete(`/api/services/${id}`, {
@@ -176,7 +122,7 @@ function AdminServices() {
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
+    setForm((f) => ({ ...f, [name]: value }));
   }
 
   if (loading) {
@@ -187,22 +133,11 @@ function AdminServices() {
     <div className="admin-page-container">
       <h2 className="page-title">Service Management</h2>
 
-      {submitError && (
-        <div className="status-message error">
-          {submitError}
-        </div>
-      )}
-      {submitSuccess && (
-        <div className="status-message success">
-          {submitSuccess}
-        </div>
-      )}
+      {submitError && <div className="status-message error">{submitError}</div>}
+      {submitSuccess && <div className="status-message success">{submitSuccess}</div>}
 
       <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '1rem' }}>
-        <button
-          onClick={() => openModal()}
-          className="btn btn-accent"
-        >
+        <button onClick={() => openModal()} className="btn btn-accent">
           ➕ Add New Service
         </button>
       </div>
@@ -214,7 +149,6 @@ function AdminServices() {
               <th>Type</th>
               <th>Description</th>
               <th>Category</th>
-              <th>Image</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -222,43 +156,22 @@ function AdminServices() {
           <tbody>
             {services.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center">
-                  No services found.
-                </td>
+                <td colSpan="5" className="text-center">No services found.</td>
               </tr>
             ) : (
-              services.map(service => (
+              services.map((service) => (
                 <tr key={service._id}>
                   <td>{service.type}</td>
                   <td>{service.description}</td>
                   <td>{service.category}</td>
                   <td>
-                    {service.imageUrl ? (
-                      <img src={service.imageUrl} alt={service.type} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
-                    ) : (
-                      'No Image'
-                    )}
-                  </td>
-                  <td>
-                    <span
-                      className={`status-badge ${service.status === 'active' ? 'status-success' : 'status-error'}`}
-                    >
+                    <span className={`status-badge ${service.status === 'active' ? 'status-success' : 'status-error'}`}>
                       {service.status}
                     </span>
                   </td>
                   <td>
-                    <button
-                      onClick={() => openModal(service)}
-                      className="btn btn-secondary btn-sm"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => deleteService(service._id)}
-                      className="btn btn-danger btn-sm"
-                    >
-                      Delete
-                    </button>
+                    <button onClick={() => openModal(service)} className="btn btn-secondary btn-sm">Edit</button>
+                    <button onClick={() => deleteService(service._id)} className="btn btn-danger btn-sm">Delete</button>
                   </td>
                 </tr>
               ))
@@ -274,75 +187,25 @@ function AdminServices() {
 
             <div className="form-group">
               <label>Service Type:</label>
-              <input
-                name="type"
-                type="text"
-                value={form.type}
-                onChange={handleChange}
-                className="form-control"
-                required
-              />
+              <input name="type" type="text" value={form.type} onChange={handleChange} className="form-control" required />
             </div>
 
             <div className="form-group">
               <label>Description:</label>
-              <textarea
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                className="form-control"
-              />
+              <textarea name="description" value={form.description} onChange={handleChange} className="form-control" />
             </div>
 
             <div className="form-group">
               <label>Category:</label>
-              <input
-                name="category"
-                type="text"
-                value={form.category}
-                onChange={handleChange}
-                className="form-control"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Service Image:</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageFileChange}
-                className="form-control"
-              />
-              {(form.imageUrl || imageFile) && (
-                <div style={{ marginTop: '10px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--color-textLight)' }}>Image Preview:</p>
-                  <img 
-                    src={imageFile ? URL.createObjectURL(imageFile) : form.imageUrl} 
-                    alt="Service Preview" 
-                    style={{ maxWidth: '150px', maxHeight: '150px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border)' }} 
-                  />
-                </div>
-              )}
-              {uploadingImage && <p style={{ color: 'var(--color-secondary)', textAlign: 'center', marginTop: '10px' }}>Uploading image...</p>}
+              <input name="category" type="text" value={form.category} onChange={handleChange} className="form-control" required />
             </div>
 
             <div className="modal-actions">
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="btn btn-outline"
-                disabled={uploadingImage}
-              >
+              <button type="button" onClick={() => setShowModal(false)} className="btn btn-outline">
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={saveService}
-                className="btn btn-primary"
-                disabled={uploadingImage || !form.type.trim() || !form.category.trim() || (!form.imageUrl && !imageFile && !editingService)}
-              >
-                {uploadingImage ? 'Uploading...' : 'Save'}
+              <button type="button" onClick={saveService} className="btn btn-primary" disabled={!form.type.trim() || !form.category.trim()}>
+                Save
               </button>
             </div>
           </div>
