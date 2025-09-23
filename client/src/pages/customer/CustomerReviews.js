@@ -6,57 +6,57 @@ import { logout } from '../../utils/authUtils'; // Import logout utility
 
 function CustomerReviews() {
   const [myReviews, setMyReviews] = useState([]);
-  const [availableBookings, setAvailableBookings] = useState([]); // For bookings eligible for review
+  const [availableBookings, setAvailableBookings] = useState([]);
   const [selectedBookingId, setSelectedBookingId] = useState('');
   const [reviewText, setReviewText] = useState('');
-  const [rating, setRating] = useState(0); // Use number for rating
+  const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch reviews and eligible bookings
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = sessionStorage.getItem('token');
-        if (!token) {
-          logout();
-          navigate('/login');
-          return;
-        }
-        
-        setLoading(true);
-        // Fetch my reviews
-        const reviewsResponse = await axios.get('http://localhost:5000/api/reviews', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setMyReviews(reviewsResponse.data);
-
-        // Fetch completed bookings that haven't been reviewed yet by this user
-        const bookingsResponse = await axios.get('http://localhost:5000/api/customer/bookings', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        const completedBookings = bookingsResponse.data.filter(booking => 
-          booking.status === 'Completed' && 
-          !reviewsResponse.data.some(review => review.booking._id === booking._id)
-        );
-        setAvailableBookings(completedBookings);
-
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError(err.response?.data?.message || 'Failed to load data. Please try again later.');
-        if (err.response?.status === 401 || err.response?.status === 403) {
-          logout();
-          navigate('/login');
-        }
-      } finally {
-        setLoading(false);
+  // Combined fetch function
+  const fetchData = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      if (!token) {
+        logout();
+        navigate('/login');
+        return;
       }
-    };
+      
+      setLoading(true);
+      // Fetch my reviews
+      const reviewsResponse = await api.get('/api/reviews', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setMyReviews(reviewsResponse.data);
 
+      // Fetch completed bookings that haven't been reviewed
+      const bookingsResponse = await api.get('/api/customer/bookings', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const completedBookings = bookingsResponse.data.filter(booking => 
+        booking.status === 'Completed' && 
+        !reviewsResponse.data.some(review => review.booking._id === booking._id)
+      );
+      setAvailableBookings(completedBookings);
+
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setError(err.response?.data?.message || 'Failed to load data. Please try again later.');
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        logout();
+        navigate('/login');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     fetchData();
   }, [navigate]);
 
@@ -73,7 +73,7 @@ function CustomerReviews() {
 
     try {
       const token = sessionStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/reviews', {
+      await api.post('/api/reviews', {
         booking: selectedBookingId,
         rating: rating,
         comment: reviewText.trim(),
@@ -87,19 +87,7 @@ function CustomerReviews() {
       setReviewText('');
       setRating(0);
       // Re-fetch data to update lists
-      const reviewsResponse = await axios.get('http://localhost:5000/api/reviews', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setMyReviews(reviewsResponse.data);
-
-      const bookingsResponse = await axios.get('http://localhost:5000/api/customer/bookings', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const completedBookings = bookingsResponse.data.filter(booking => 
-        booking.status === 'Completed' && 
-        !reviewsResponse.data.some(review => review.booking._id === booking._id)
-      );
-      setAvailableBookings(completedBookings);
+      await fetchData();
 
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
