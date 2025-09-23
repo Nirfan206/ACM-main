@@ -29,16 +29,16 @@ function AdminProfile() {
   // Function to fetch the profile data
   const fetchProfile = async () => {
     try {
-      const token = sessionStorage.getItem("token"); // Changed from localStorage
+      const token = sessionStorage.getItem("token");
       if (!token) {
-        logout(); // Use utility for logout
+        logout();
         navigate("/login");
         return;
       }
       setLoading(true);
       setProfileError("");
       
-      const profileRes = await axios.get("http://localhost:5000/api/admin/profile", {
+      const profileRes = await api.get("/api/admin/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -75,7 +75,7 @@ function AdminProfile() {
     setProfileError("");
     setProfileSuccess("");
     try {
-      const token = sessionStorage.getItem("token"); // Changed from localStorage
+      const token = sessionStorage.getItem("token");
       
       const profileData = {
         profile: {
@@ -83,11 +83,11 @@ function AdminProfile() {
           email: profile.email,
           address: profile.address
         },
-        phone: profile.phone // Phone might not be editable, but sending it for consistency
+        phone: profile.phone
       };
       
-      await axios.put(
-        "http://localhost:5000/api/admin/profile",
+      await api.put(
+        "/api/admin/profile",
         profileData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -128,9 +128,9 @@ function AdminProfile() {
     }
     
     try {
-      const token = sessionStorage.getItem("token"); // Changed from localStorage
-      await axios.put(
-        "http://localhost:5000/api/admin/password",
+      const token = sessionStorage.getItem("token");
+      await api.put(
+        "/api/admin/password",
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword
@@ -158,7 +158,7 @@ function AdminProfile() {
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to log out?")) {
-      logout(); // Use utility for logout
+      logout();
       navigate("/login");
     }
   };
