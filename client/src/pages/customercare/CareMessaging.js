@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-
+import api from '../api'; 
 function CareMessaging() {
   const [messages, setMessages] = useState([]); // This will store sent messages locally for display
   const [input, setInput] = useState("");
