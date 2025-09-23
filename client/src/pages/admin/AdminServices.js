@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../api'; 
-// API base URL for service management
-const API_URL = 'http://localhost:5000/api/services';
-const UPLOAD_URL = 'http://localhost:5000/api/upload/image'; // Backend image upload endpoint
 
 function AdminServices() {
   const [services, setServices] = useState([]);
@@ -12,15 +9,14 @@ function AdminServices() {
     type: '',
     description: '',
     category: '',
-    imageUrl: '', // NEW: Add imageUrl to form state
+    imageUrl: '',
   });
-  const [imageFile, setImageFile] = useState(null); // NEW: State for the selected image file
-  const [uploadingImage, setUploadingImage] = useState(false); // NEW: State for image upload loading
+  const [imageFile, setImageFile] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
 
-  // Fetch services from database on mount
   useEffect(() => {
     fetchServices();
   }, []);
@@ -32,7 +28,7 @@ function AdminServices() {
       const token = sessionStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       
-      const { data } = await axios.get(API_URL, { headers });
+      const { data } = await api.get('/api/services', { headers });
       setServices(data);
     } catch (err) {
       console.error('Error fetching services:', err);
@@ -45,14 +41,14 @@ function AdminServices() {
   function openModal(service = null) {
     setSubmitError('');
     setSubmitSuccess('');
-    setImageFile(null); // Clear selected image file
+    setImageFile(null);
     if (service) {
       setEditingService(service);
       setForm({
         type: service.type || '',
         description: service.description || '',
         category: service.category || '',
-        imageUrl: service.imageUrl || '', // Pre-fill imageUrl if exists
+        imageUrl: service.imageUrl || '',
       });
     } else {
       setEditingService(null);
@@ -63,7 +59,7 @@ function AdminServices() {
 
   const handleImageFileChange = (e) => {
     setImageFile(e.target.files[0]);
-    setSubmitError(''); // Clear error when new file is selected
+    setSubmitError('');
   };
 
   const uploadImage = async () => {
@@ -79,14 +75,14 @@ function AdminServices() {
       const formData = new FormData();
       formData.append('image', imageFile);
 
-      const response = await axios.post(UPLOAD_URL, formData, {
+      const response = await api.post('/api/upload/image', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
         }
       });
       setUploadingImage(false);
-      return response.data.imageUrl; // Return the Cloudinary URL
+      return response.data.imageUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
       setSubmitError(error.response?.data?.message || 'Failed to upload image.');
@@ -99,7 +95,6 @@ function AdminServices() {
     setSubmitError('');
     setSubmitSuccess('');
     try {
-      // Client-side validation
       if (!form.type.trim()) {
         setSubmitError('Service Type is required');
         return;
@@ -109,18 +104,15 @@ function AdminServices() {
         return;
       }
 
-      let finalImageUrl = form.imageUrl; // Start with existing image URL
+      let finalImageUrl = form.imageUrl;
 
-      // If a new image file is selected, upload it
       if (imageFile) {
         const uploadedUrl = await uploadImage();
         if (!uploadedUrl) {
-          // Error during upload, stop saving service
           return;
         }
         finalImageUrl = uploadedUrl;
-      } else if (!finalImageUrl) {
-        // If no new file and no existing URL, then image is missing
+      } else if (!finalImageUrl && !editingService) { // Image is required for new services
         setSubmitError('Service Image is required.');
         return;
       }
@@ -140,14 +132,14 @@ function AdminServices() {
         type: form.type.trim(),
         description: form.description.trim(),
         category: form.category.trim(),
-        imageUrl: finalImageUrl, // Use the final image URL
+        imageUrl: finalImageUrl,
       };
 
       if (editingService) {
-        await axios.put(`${API_URL}/${editingService._id}`, serviceData, { headers });
+        await api.put(`/api/services/${editingService._id}`, serviceData, { headers });
         setSubmitSuccess('Service updated successfully');
       } else {
-        await axios.post(API_URL, serviceData, { headers });
+        await api.post('/api/services', serviceData, { headers });
         setSubmitSuccess('Service created successfully');
       }
       
@@ -170,7 +162,7 @@ function AdminServices() {
         setSubmitError("Authentication required. Please log in.");
         return;
       }
-      await axios.delete(`${API_URL}/${id}`, {
+      await api.delete(`/api/services/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       await fetchServices();
@@ -206,7 +198,6 @@ function AdminServices() {
         </div>
       )}
 
-      {/* Add Service Button */}
       <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '1rem' }}>
         <button
           onClick={() => openModal()}
@@ -216,7 +207,6 @@ function AdminServices() {
         </button>
       </div>
 
-      {/* Services Table */}
       <div>
         <table className="data-table">
           <thead>
@@ -224,7 +214,7 @@ function AdminServices() {
               <th>Type</th>
               <th>Description</th>
               <th>Category</th>
-              <th>Image</th> {/* NEW: Image column */}
+              <th>Image</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -277,7 +267,6 @@ function AdminServices() {
         </table>
       </div>
 
-      {/* Modal for Add/Edit Service */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -317,7 +306,6 @@ function AdminServices() {
               />
             </div>
 
-            {/* NEW: Image Upload Field */}
             <div className="form-group">
               <label>Service Image:</label>
               <input
@@ -341,7 +329,7 @@ function AdminServices() {
 
             <div className="modal-actions">
               <button
-                type="button" // Changed to type="button" to prevent form submission before image upload
+                type="button"
                 onClick={() => setShowModal(false)}
                 className="btn btn-outline"
                 disabled={uploadingImage}
@@ -349,10 +337,10 @@ function AdminServices() {
                 Cancel
               </button>
               <button
-                type="button" // Changed to type="button" to prevent form submission before image upload
+                type="button"
                 onClick={saveService}
                 className="btn btn-primary"
-                disabled={uploadingImage || !form.type.trim() || !form.category.trim() || (!form.imageUrl && !imageFile)}
+                disabled={uploadingImage || !form.type.trim() || !form.category.trim() || (!form.imageUrl && !imageFile && !editingService)}
               >
                 {uploadingImage ? 'Uploading...' : 'Save'}
               </button>
