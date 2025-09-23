@@ -29,16 +29,16 @@ function CustomerCareProfile() {
   // Function to fetch the profile data
   const fetchProfile = async () => {
     try {
-      const token = sessionStorage.getItem("token"); // Changed from localStorage
+      const token = sessionStorage.getItem("token");
       if (!token) {
-        logout(); // Use utility for logout
+        logout();
         navigate("/login");
         return;
       }
       setLoading(true);
       setProfileError("");
       
-      const profileRes = await axios.get("http://localhost:5000/api/customercare/profile", {
+      const profileRes = await api.get("/api/customercare/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -75,7 +75,7 @@ function CustomerCareProfile() {
     setProfileError("");
     setProfileSuccess("");
     try {
-      const token = sessionStorage.getItem("token"); // Changed from localStorage
+      const token = sessionStorage.getItem("token");
       
       const profileData = {
         profile: {
@@ -86,8 +86,8 @@ function CustomerCareProfile() {
         phone: profile.phone 
       };
       
-      await axios.put(
-        "http://localhost:5000/api/customercare/profile",
+      await api.put(
+        "/api/customercare/profile",
         profileData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -128,9 +128,9 @@ function CustomerCareProfile() {
     }
     
     try {
-      const token = sessionStorage.getItem("token"); // Changed from localStorage
-      await axios.put(
-        "http://localhost:5000/api/customercare/password",
+      const token = sessionStorage.getItem("token");
+      await api.put(
+        "/api/customercare/password",
         {
           currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword
@@ -158,7 +158,7 @@ function CustomerCareProfile() {
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to log out?")) {
-      logout(); // Use utility for logout
+      logout();
       navigate("/login");
     }
   };
