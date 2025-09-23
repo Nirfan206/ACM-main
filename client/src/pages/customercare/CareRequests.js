@@ -1,62 +1,47 @@
-import React, { useState, useEffect, useRef } from "react";
-import api from '../../api';
+import React, { useEffect, useState } from "react";
+import api from "../../api";
 
 function CareRequests() {
-  const [requests, setRequests] = useState([]); // Callback requests
-  const [bookings, setBookings] = useState([]); // Booking requests
-  const [employees, setEmployees] = useState([]); // List of employees for assignment
+  const [requests, setRequests] = useState([]);    // Callback requests
+  const [bookings, setBookings] = useState([]);    // Booking requests
+  const [employees, setEmployees] = useState([]);  // Employees for assignment
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  
-  // For Callback Requests
+
+  // Callback Requests state
   const [selectedCallbackRequest, setSelectedCallbackRequest] = useState(null);
   const [callbackNotes, setCallbackNotes] = useState("");
   const [callbackStatusUpdate, setCallbackStatusUpdate] = useState("");
 
-  // For Booking Requests
+  // Booking Requests state
   const [selectedBookingRequest, setSelectedBookingRequest] = useState(null);
   const [bookingStatusUpdate, setBookingStatusUpdate] = useState("");
   const [bookingNotes, setBookingNotes] = useState("");
   const [assignEmployeeId, setAssignEmployeeId] = useState("");
 
-  useEffect(() => {
-    fetchData(); // Initial fetch
-
-    const intervalId = setInterval(fetchData, 5000); // Poll every 5 seconds
-
-    return () => clearInterval(intervalId); // Clean up interval on component unmount
-  }, []);
-
   const fetchData = async () => {
     try {
       setLoading(true);
-      const token = sessionStorage.getItem('token');
+      setError("");
+
+      const token = sessionStorage.getItem("token");
       if (!token) {
         setError("Authentication required. Please log in.");
-        setLoading(false);
         return;
       }
-      
-      // Fetch CallbackRequest models
-      const callbackResponse = await api.get("/api/customercare/callback-requests", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setRequests(callbackResponse.data);
 
-      // Fetch BookingRequest models
-      const bookingResponse = await api.get("/api/customercare/requests", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setBookings(bookingResponse.data);
+      const headers = { Authorization: `Bearer ${token}` };
 
-      // Fetch Employees for assignment
-      const employeesResponse = await api.get("/api/admin/users", { // Admin route to get all users, then filter
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setEmployees(employeesResponse.data.filter(user => user.role === 'employee'));
+      const [callbackRes, bookingRes, employeesRes] = await Promise.all([
+        api.get("/api/customercare/callback-requests", { headers }),
+        api.get("/api/customercare/requests", { headers }),
+        api.get("/api/admin/users", { headers })
+      ]);
 
-      setError("");
+      setRequests(callbackRes.data || []);
+      setBookings(bookingRes.data || []);
+      setEmployees((employeesRes.data || []).filter((u) => u.role === "employee"));
     } catch (err) {
       console.error("Error fetching requests:", err);
       setError("Failed to load requests. Please try again.");
@@ -65,117 +50,148 @@ function CareRequests() {
     }
   };
 
+  useEffect(() => {
+    // Initial fetch only; removed 5s polling
+    fetchData();
+  }, []);
+
   const handleCallbackStatusUpdate = async () => {
     if (!selectedCallbackRequest || !callbackStatusUpdate) {
       setError("Please select a callback request and a status to update.");
-      setTimeout(() => setError(""), 3000);
-      return;
-    }
+    } else {
+      try {
+        const token = sessionStorage.getItem("token");
+        const headers = { Authorization: `Bearer ${token}` };
 
-    try {
-      const token = sessionStorage.getItem('token');
-      await api.put(`/api/callback-requests/${selectedCallbackRequest._id}`, {
-        status: callbackStatusUpdate,
-        notes: callbackNotes.trim(),
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchData(); // Re-fetch to update the list
-      setSelectedCallbackRequest(null);
-      setCallbackNotes("");
-      setCallbackStatusUpdate("");
-      setSuccess("Callback request updated successfully ✅");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      console.error("Error updating callback request status:", err);
-      setError("Failed to update callback request status. Please try again.");
-      setTimeout(() => setError(""), 3000);
+        const body = {
+          status: callbackStatusUpdate,
+          notes: callbackNotes.trim()
+        };
+
+        await api.put(`/api/callback-requests/${selectedCallbackRequest._id}`, body, { headers });
+
+        // Optimistic local update to avoid full refetch
+        setRequests((prev) =>
+          prev.map((r) =>
+            r._id === selectedCallbackRequest._id
+              ? { ...r, status: callbackStatusUpdate, notes: body.notes }
+              : r
+          )
+        );
+
+        setSelectedCallbackRequest(null);
+        setCallbackNotes("");
+        setCallbackStatusUpdate("");
+        setSuccess("Callback request updated successfully ✅");
+        setTimeout(() => setSuccess(""), 3000);
+      } catch (err) {
+        console.error("Error updating callback request status:", err);
+        setError("Failed to update callback request status. Please try again.");
+        setTimeout(() => setError(""), 3000);
+      }
     }
   };
 
   const handleBookingStatusUpdate = async () => {
     if (!selectedBookingRequest || !bookingStatusUpdate) {
       setError("Please select a booking request and a status to update.");
-      setTimeout(() => setError(""), 3000);
-      return;
-    }
+    } else {
+      try {
+        const token = sessionStorage.getItem("token");
+        const headers = { Authorization: `Bearer ${token}` };
 
-    try {
-      const token = sessionStorage.getItem('token');
-      await api.put(`/api/customercare/bookings/${selectedBookingRequest._id}/status`, {
-        status: bookingStatusUpdate,
-        notes: bookingNotes.trim(),
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchData(); // Re-fetch to update the list
-      setSelectedBookingRequest(null);
-      setBookingNotes("");
-      setBookingStatusUpdate("");
-      setSuccess("Booking status updated successfully ✅");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      console.error("Error updating booking status:", err);
-      setError("Failed to update booking status. Please try again.");
-      setTimeout(() => setError(""), 3000);
+        const body = {
+          status: bookingStatusUpdate,
+          notes: bookingNotes.trim()
+        };
+
+        await api.put(
+          `/api/customercare/bookings/${selectedBookingRequest._id}/status`,
+          body,
+          { headers }
+        );
+
+        // Optimistic local update
+        setBookings((prev) =>
+          prev.map((b) =>
+            b._id === selectedBookingRequest._id
+              ? { ...b, status: bookingStatusUpdate, notes: body.notes }
+              : b
+          )
+        );
+
+        setSelectedBookingRequest(null);
+        setBookingNotes("");
+        setBookingStatusUpdate("");
+        setSuccess("Booking status updated successfully ✅");
+        setTimeout(() => setSuccess(""), 3000);
+      } catch (err) {
+        console.error("Error updating booking status:", err);
+        setError("Failed to update booking status. Please try again.");
+        setTimeout(() => setError(""), 3000);
+      }
     }
   };
 
   const handleAssignEmployee = async () => {
     if (!selectedBookingRequest || !assignEmployeeId) {
       setError("Please select a booking and an employee to assign.");
-      setTimeout(() => setError(""), 3000);
-      return;
-    }
+    } else {
+      try {
+        const token = sessionStorage.getItem("token");
+        const headers = { Authorization: `Bearer ${token}` };
 
-    try {
-      const token = sessionStorage.getItem('token');
-      await api.put(`/api/customercare/bookings/${selectedBookingRequest._id}/assign-employee`, {
-        employeeId: assignEmployeeId,
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchData(); // Re-fetch to update the list
-      setSelectedBookingRequest(null);
-      setAssignEmployeeId("");
-      setSuccess("Employee assigned successfully ✅");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      console.error("Error assigning employee:", err);
-      setError(err.response?.data?.message || "Failed to assign employee. Please try again.");
-      setTimeout(() => setError(""), 3000);
+        await api.put(
+          `/api/customercare/bookings/${selectedBookingRequest._id}/assign-employee`,
+          { employeeId: assignEmployeeId },
+          { headers }
+        );
+
+        // Optimistic local update
+        const assignedEmp = employees.find((e) => e._id === assignEmployeeId);
+        setBookings((prev) =>
+          prev.map((b) =>
+            b._id === selectedBookingRequest._id
+              ? { ...b, employee: assignedEmp ? { ...assignedEmp } : b.employee }
+              : b
+          )
+        );
+
+        setSelectedBookingRequest(null);
+        setAssignEmployeeId("");
+        setSuccess("Employee assigned successfully ✅");
+        setTimeout(() => setSuccess(""), 3000);
+      } catch (err) {
+        console.error("Error assigning employee:", err);
+        setError(err.response?.data?.message || "Failed to assign employee. Please try again.");
+        setTimeout(() => setError(""), 3000);
+      }
     }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString(undefined, {
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleString(undefined, {
       year: "numeric",
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit",
+      minute: "2-digit"
     });
-  };
 
   return (
     <div className="admin-page-container">
-      <h2 className="page-title">Customer Care Requests</h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2 className="page-title">Customer Care Requests</h2>
+        <button onClick={fetchData} className="btn btn-outline">Refresh</button>
+      </div>
 
-      {error && (
-        <div className="status-message error">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="status-message success">
-          {success}
-        </div>
-      )}
+      {error && <div className="status-message error">{error}</div>}
+      {success && <div className="status-message success">{success}</div>}
 
-      <div className="grid-container" style={{ gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+      <div className="grid-container" style={{ gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
         {/* Callback Requests */}
         <div>
-          <h3 style={{ marginBottom: "15px", color: 'var(--color-text)' }}>Callback Requests</h3>
+          <h3 style={{ marginBottom: "15px", color: "var(--color-text)" }}>Callback Requests</h3>
           <div>
             {loading ? (
               <p className="text-center">⏳ Loading callback requests...</p>
@@ -201,8 +217,8 @@ function CareRequests() {
                         </a>
                       </td>
                       <td>
-                        <span className={`status-badge status-${request.status.replace('_', '-')}`}>
-                          {request.status.replace('_', ' ')}
+                        <span className={`status-badge status-${request.status.replace("_", "-")}`}>
+                          {request.status.replace("_", " ")}
                         </span>
                       </td>
                       <td>
@@ -227,7 +243,7 @@ function CareRequests() {
 
         {/* Booking Requests */}
         <div>
-          <h3 style={{ marginBottom: "15px", color: 'var(--color-text)' }}>Booking Requests</h3>
+          <h3 style={{ marginBottom: "15px", color: "var(--color-text)" }}>Booking Requests</h3>
           <div>
             {loading ? (
               <p className="text-center">⏳ Loading booking requests...</p>
@@ -249,27 +265,38 @@ function CareRequests() {
                   {bookings.map((booking) => (
                     <tr key={booking._id}>
                       <td>
-                        {booking.user?.profile?.name || 'N/A'}
+                        {booking.user?.profile?.name || "N/A"}
                         <br />
                         <a href={`tel:${booking.user?.phone}`} className="text-secondary">
-                          {booking.user?.phone || 'N/A'}
+                          {booking.user?.phone || "N/A"}
                         </a>
                         <br />
-                        <small>{booking.user?.profile?.address || 'N/A'}</small>
+                        <small>{booking.user?.profile?.address || "N/A"}</small>
                       </td>
-                      <td>{booking.service?.type || 'N/A'}</td>
+                      <td>{booking.service?.type || "N/A"}</td>
                       <td>{formatDate(booking.date)}</td>
                       <td>
-                        <span className={`status-badge status-${booking.status.toLowerCase().replace(' ', '-').replace('awaiting-admin-confirmation', 'pending')}`}>
-                          {booking.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}
+                        <span
+                          className={`status-badge status-${booking.status
+                            .toLowerCase()
+                            .replace(" ", "-")
+                            .replace("awaiting-admin-confirmation", "pending")}`}
+                        >
+                          {booking.status
+                            .replace(" - ", " ")
+                            .replace("awaiting admin confirmation", "Awaiting Admin")}
                         </span>
                       </td>
-                      <td>{booking.employee?.profile?.name || 'Not Assigned'}</td>
+                      <td>{booking.employee?.profile?.name || "Not Assigned"}</td>
                       <td>
                         <button
                           onClick={() => {
                             setSelectedBookingRequest(booking);
-                            setBookingStatusUpdate(booking.status === 'Completed - Awaiting Admin Confirmation' ? 'Completed' : booking.status);
+                            setBookingStatusUpdate(
+                              booking.status === "Completed - Awaiting Admin Confirmation"
+                                ? "Completed"
+                                : booking.status
+                            );
                             setBookingNotes(booking.notes || "");
                             setAssignEmployeeId(booking.employee?._id || "");
                           }}
@@ -287,7 +314,7 @@ function CareRequests() {
         </div>
       </div>
 
-      {/* Callback Request Details Modal */}
+      {/* Callback Request Modal */}
       {selectedCallbackRequest && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -296,7 +323,7 @@ function CareRequests() {
               <p><strong>Name:</strong> {selectedCallbackRequest.name}</p>
               <p><strong>Phone:</strong> {selectedCallbackRequest.phone}</p>
               <p><strong>Message:</strong> {selectedCallbackRequest.message || "No message provided"}</p>
-              <p><strong>Status:</strong> {selectedCallbackRequest.status.replace('_', ' ')}</p>
+              <p><strong>Status:</strong> {selectedCallbackRequest.status.replace("_", " ")}</p>
               <p><strong>Date Requested:</strong> {formatDate(selectedCallbackRequest.createdAt)}</p>
             </div>
 
@@ -325,15 +352,16 @@ function CareRequests() {
             </div>
 
             <div className="modal-actions">
-              <button
-                onClick={() => setSelectedCallbackRequest(null)}
-                className="btn btn-outline"
-              >
+              <button onClick={() => setSelectedCallbackRequest(null)} className="btn btn-outline">
                 Close
               </button>
               <button
                 onClick={handleCallbackStatusUpdate}
-                disabled={!callbackStatusUpdate || (callbackStatusUpdate === selectedCallbackRequest.status && callbackNotes === (selectedCallbackRequest.notes || ""))}
+                disabled={
+                  !callbackStatusUpdate ||
+                  (callbackStatusUpdate === selectedCallbackRequest.status &&
+                    callbackNotes === (selectedCallbackRequest.notes || ""))
+                }
                 className="btn btn-primary"
               >
                 Update
@@ -343,20 +371,22 @@ function CareRequests() {
         </div>
       )}
 
-      {/* Booking Request Details Modal */}
+      {/* Booking Request Modal */}
       {selectedBookingRequest && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h3 className="modal-title">Booking Request Management</h3>
             <div className="form-group">
-              <p><strong>Customer:</strong> {selectedBookingRequest.user?.profile?.name || 'N/A'}</p>
-              <p><strong>Phone:</strong> {selectedBookingRequest.user?.phone || 'N/A'}</p>
-              <p><strong>Address:</strong> {selectedBookingRequest.user?.profile?.address || 'N/A'}</p>
-              <p><strong>Service:</strong> {selectedBookingRequest.service?.type || 'N/A'}</p>
+              <p><strong>Customer:</strong> {selectedBookingRequest.user?.profile?.name || "N/A"}</p>
+              <p><strong>Phone:</strong> {selectedBookingRequest.user?.phone || "N/A"}</p>
+              <p><strong>Address:</strong> {selectedBookingRequest.user?.profile?.address || "N/A"}</p>
+              <p><strong>Service:</strong> {selectedBookingRequest.service?.type || "N/A"}</p>
               <p><strong>Date:</strong> {formatDate(selectedBookingRequest.date)}</p>
-              <p><strong>Current Status:</strong> {selectedBookingRequest.status.replace(' - ', ' ').replace('awaiting admin confirmation', 'Awaiting Admin')}</p>
-              <p><strong>Assigned Employee:</strong> {selectedBookingRequest.employee?.profile?.name || 'Not Assigned'}</p>
-              <p><strong>Notes:</strong> {selectedBookingRequest.notes || 'N/A'}</p>
+              <p><strong>Current Status:</strong> {selectedBookingRequest.status
+                .replace(" - ", " ")
+                .replace("awaiting admin confirmation", "Awaiting Admin")}</p>
+              <p><strong>Assigned Employee:</strong> {selectedBookingRequest.employee?.profile?.name || "Not Assigned"}</p>
+              <p><strong>Notes:</strong> {selectedBookingRequest.notes || "N/A"}</p>
             </div>
 
             <div className="form-group">
@@ -367,7 +397,7 @@ function CareRequests() {
                 className="form-control"
               >
                 <option value="">Select Employee</option>
-                {employees.map(emp => (
+                {employees.map((emp) => (
                   <option key={emp._id} value={emp._id}>
                     {emp.profile?.name || emp.phone}
                   </option>
@@ -409,15 +439,16 @@ function CareRequests() {
             </div>
 
             <div className="modal-actions">
-              <button
-                onClick={() => setSelectedBookingRequest(null)}
-                className="btn btn-outline"
-              >
+              <button onClick={() => setSelectedBookingRequest(null)} className="btn btn-outline">
                 Close
               </button>
               <button
                 onClick={handleBookingStatusUpdate}
-                disabled={!bookingStatusUpdate || (bookingStatusUpdate === selectedBookingRequest.status && bookingNotes === (selectedBookingRequest.notes || ""))}
+                disabled={
+                  !bookingStatusUpdate ||
+                  (bookingStatusUpdate === selectedBookingRequest.status &&
+                    bookingNotes === (selectedBookingRequest.notes || ""))
+                }
                 className="btn btn-primary"
               >
                 Update Status
