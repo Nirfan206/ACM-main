@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../api'; 
-const API_URL = 'http://localhost:5000/api/customercare/customers';
 
 function CareCustomers() {
   const [customers, setCustomers] = useState([]);
@@ -24,13 +23,13 @@ function CareCustomers() {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setError("Authentication required. Please log in.");
         setLoading(false);
         return;
       }
-      const response = await axios.get(API_URL, {
+      const response = await api.get('/api/customercare/customers', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCustomers(response.data);
@@ -93,7 +92,7 @@ function CareCustomers() {
         return;
       }
 
-      const token = sessionStorage.getItem('token'); // Changed from localStorage
+      const token = sessionStorage.getItem('token');
       const headers = { Authorization: `Bearer ${token}` };
 
       const customerData = {
@@ -109,10 +108,10 @@ function CareCustomers() {
       }
 
       if (editingCustomer) {
-        await axios.put(`${API_URL}/${editingCustomer._id}`, customerData, { headers });
+        await api.put(`/api/customercare/customers/${editingCustomer._id}`, customerData, { headers });
         setSuccess('Customer updated successfully!');
       } else {
-        await axios.post(API_URL, customerData, { headers });
+        await api.post('/api/customercare/customers', customerData, { headers });
         setSuccess('Customer created successfully!');
       }
       setShowModal(false);
@@ -137,7 +136,6 @@ function CareCustomers() {
         </button>
       </div>
 
-      {/* Customers Table */}
       <div>
         {loading ? (
           <p className="text-center">Loading customers...</p>
