@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-//import axios from 'axios';
 import api from '../api';
 import { Link } from 'react-router-dom';
 
@@ -36,8 +35,8 @@ function ForgotPasswordPage() {
     }
 
     try {
-      // Directly call the password reset endpoint with phone and new password
-      await axios.post('http://localhost:5000/api/auth/password-reset', { phone, newPassword });
+      // Corrected API call using the central 'api' client
+      await api.post('/api/auth/password-reset', { phone, newPassword });
       setSuccess('Password reset successful! You can now login with your new password.');
       setPhone('');
       setNewPassword('');
@@ -93,26 +92,26 @@ function ForgotPasswordPage() {
       marginTop: '10px',
       textAlign: 'center',
       padding: '0.75rem',
-      backgroundColor: `var(--color-error)15`,
+      backgroundColor: `rgba(var(--color-error-rgb), 0.15)`,
       borderRadius: '6px',
-      border: `1px solid var(--color-error)30`
+      border: `1px solid rgba(var(--color-error-rgb), 0.3)`
     },
     messageSuccess: {
       color: 'var(--color-success)',
       marginTop: '10px',
       textAlign: 'center',
       padding: '0.75rem',
-      backgroundColor: `var(--color-success)15`,
+      backgroundColor: `rgba(var(--color-success-rgb), 0.15)`,
       borderRadius: '6px',
-      border: `1px solid var(--color-success)30`
+      border: `1px solid rgba(var(--color-success-rgb), 0.3)`
     },
     warningBox: {
       marginTop: '1.5rem',
       padding: '1rem',
-      backgroundColor: `var(--color-accent)10`,
+      backgroundColor: `rgba(var(--color-accent-rgb), 0.1)`,
       borderRadius: '6px',
       fontSize: '0.85rem',
-      border: `1px solid var(--color-accent)30`,
+      border: `1px solid rgba(var(--color-accent-rgb), 0.3)`,
       color: 'var(--color-text)'
     }
   };
