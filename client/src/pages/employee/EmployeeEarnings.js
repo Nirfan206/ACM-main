@@ -20,15 +20,15 @@ function EmployeeEarnings() {
     const fetchJobSummary = async () => {
       try {
         setLoading(true);
-        const token = sessionStorage.getItem('token'); // Changed from localStorage
+        const token = sessionStorage.getItem('token'); 
         
         if (!token) {
-          logout(); // Use utility for logout
+          logout(); 
           navigate("/login");
           return;
         }
         
-        const response = await axios.get('http://localhost:5000/api/employee/earnings', { // Endpoint still named 'earnings' but now returns job summary
+        const response = await api.get('/api/employee/earnings', { 
           headers: {
             Authorization: `Bearer ${token}`
           }
