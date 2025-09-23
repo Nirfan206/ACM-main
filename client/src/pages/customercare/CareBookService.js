@@ -9,8 +9,8 @@ function CareBookService() {
   const [selectedCustomer, setSelectedCustomer] = useState('');
   const [newBookingForm, setNewBookingForm] = useState({
     service: '',
-    problem: '', // Stores selected problem from dropdown
-    problemDescription: '', // Stores detailed problem if 'Other' is selected
+    problem: '',
+    problemDescription: '',
     date: '',
     time: '',
     address: '',
@@ -21,25 +21,12 @@ function CareBookService() {
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  // Define common problems for each service category (duplicated from CustomerBookings for UI logic)
   const serviceProblems = {
-    'AC': [
-      'AC not cooling', 'Water leakage from AC', 'AC making noise', 
-      'AC not turning on', 'Bad odor from AC', 'AC gas refilling'
-    ],
-    'Fridge': [
-      'Fridge not cooling', 'Water leakage from fridge', 'Fridge making noise',
-      'Fridge not turning on', 'Excessive frosting', 'Door seal broken'
-    ],
-    'Washing Machine': [
-      'Washing machine not draining', 'Washing machine not spinning', 'Washing machine making noise',
-      'Washing machine not turning on', 'Water leakage from washing machine', 'Drum not rotating'
-    ],
-    'Electrical': [
-      'Power outage in specific area', 'Faulty wiring', 'Socket repair/replacement',
-      'Light fixture installation/repair', 'Circuit breaker tripping', 'Fan repair/installation'
-    ],
-    'Other': [] // For services not explicitly listed or general issues
+    'AC': ['AC not cooling', 'Water leakage from AC', 'AC making noise', 'AC not turning on', 'Bad odor from AC', 'AC gas refilling'],
+    'Fridge': ['Fridge not cooling', 'Water leakage from fridge', 'Fridge making noise', 'Fridge not turning on', 'Excessive frosting', 'Door seal broken'],
+    'Washing Machine': ['Washing machine not draining', 'Washing machine not spinning', 'Washing machine making noise', 'Washing machine not turning on', 'Water leakage from washing machine', 'Drum not rotating'],
+    'Electrical': ['Power outage in specific area', 'Faulty wiring', 'Socket repair/replacement', 'Light fixture installation/repair', 'Circuit breaker tripping', 'Fan repair/installation'],
+    'Other': []
   };
 
   useEffect(() => {
@@ -58,13 +45,13 @@ function CareBookService() {
       }
 
       // Fetch customers
-      const customersResponse = await axios.get('http://localhost:5000/api/customercare/customers', {
+      const customersResponse = await api.get('/api/customercare/customers', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCustomers(customersResponse.data);
 
       // Fetch services
-      const servicesResponse = await axios.get('http://localhost:5000/api/services');
+      const servicesResponse = await api.get('/api/services');
       setAvailableServices(servicesResponse.data);
 
     } catch (err) {
@@ -82,7 +69,6 @@ function CareBookService() {
   const handleCustomerChange = (e) => {
     const customerId = e.target.value;
     setSelectedCustomer(customerId);
-    // Pre-fill address if customer is selected
     const customer = customers.find(c => c._id === customerId);
     setNewBookingForm(prev => ({ ...prev, address: customer?.profile?.address || '' }));
   };
@@ -91,7 +77,6 @@ function CareBookService() {
     const { name, value } = e.target;
     setNewBookingForm(prev => ({ ...prev, [name]: value }));
     if (name === 'service') {
-      // Reset problem when service changes
       setNewBookingForm(prev => ({ ...prev, problem: '', problemDescription: '' }));
     }
   };
@@ -136,8 +121,8 @@ function CareBookService() {
 
     try {
       const token = sessionStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/customercare/bookings', {
-        userId: selectedCustomer, // Send customer ID
+      await api.post('/api/customercare/bookings', {
+        userId: selectedCustomer,
         service: newBookingForm.service,
         date: newBookingForm.date,
         time: newBookingForm.time,
@@ -148,7 +133,6 @@ function CareBookService() {
       });
       
       setSuccess('Booking created successfully for the customer!');
-      // Reset form
       setSelectedCustomer('');
       setNewBookingForm({
         service: '', problem: '', problemDescription: '', date: '', time: '', address: ''
