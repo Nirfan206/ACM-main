@@ -24,7 +24,7 @@ const Header = () => {
         <nav className="main-nav">
           <Link to="/" className={`nav-link ${isActive('/')}`}>Home</Link>
           <Link to="/services" className={`nav-link ${isActive('/services')}`}>Services</Link>
-        //  <Link to="/reviews" className={`nav-link ${isActive('/reviews')}`}>Reviews</Link> {/* NEW: Reviews Link */}
+{/* <Link to="/reviews" className={`nav-link ${isActive('/reviews')}`}>Reviews</Link>*/} {/* NEW: Reviews Link */}
           <Link to="/login" className={`nav-link ${isActive('/login')}`}>Login</Link>
           <Link to="/register" className={`nav-link ${isActive('/register')}`}>Register</Link>
         </nav>
