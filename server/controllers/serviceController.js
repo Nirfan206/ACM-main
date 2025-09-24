@@ -1,4 +1,4 @@
-// controllers/service.controller.js
+// controllers/serviceController.js
 const Service = require('../models/Service');
 
 /**
@@ -20,17 +20,14 @@ const getServices = async (req, res) => {
  */
 const createService = async (req, res) => {
   try {
-    const { type, description, category, imageUrl } = req.body; 
-    
+    const { type, description, category } = req.body;
+
     // Basic validation
-    if (!type) { 
-      return res.status(400).json({ message: 'Service Type is required' }); 
-    }
-    if (!imageUrl) { // NEW: Make imageUrl compulsory
-      return res.status(400).json({ message: 'Service Image URL is required' });
+    if (!type) {
+      return res.status(400).json({ message: 'Service Type is required' });
     }
 
-    const service = await Service.create({ type, description, category, imageUrl }); 
+    const service = await Service.create({ type, description, category });
     res.status(201).json(service);
   } catch (err) {
     res.status(500).json({ message: 'Error creating service', error: err.message });
@@ -43,12 +40,8 @@ const createService = async (req, res) => {
  */
 const updateService = async (req, res) => {
   try {
-    const { type, description, category, imageUrl } = req.body;
-    const updateFields = { type, description, category, imageUrl };
-
-    if (!imageUrl) { // NEW: Make imageUrl compulsory for updates too
-      return res.status(400).json({ message: 'Service Image URL is required' });
-    }
+    const { type, description, category } = req.body;
+    const updateFields = { type, description, category };
 
     const service = await Service.findByIdAndUpdate(req.params.id, updateFields, { new: true });
 
