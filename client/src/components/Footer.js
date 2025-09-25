@@ -17,7 +17,7 @@ const Footer = () => {
           <h3>Contact Us</h3>
           <p><strong>Hours:</strong> Open 24 hours</p>
           <p><strong>Customer Care Phone:</strong> 9966972228</p>
-          <p><strong>Address:</strong> అత్తర్ అల్లాహ్ బక్ష్ నగర్ (Attar Allah Baksh Nagar), 2వ లైను (2nd Line గవవర్నమెంట్ హాస్పిటల్ ప్రక్కన), Chirala Rd, beside Government Hospital, Chilakaluripet, Andhra Pradesh 522616</p>
+          <p><strong>Address:</strong> అత్తర్ అల్లాహ్ బక్ష్ నగర్ (Attar Allah Baksh Nagar), 2వ లైను (2nd Line) గవవర్నమెంట్ హాస్పిటల్ ప్రక్కన, Chirala Rd, beside Government Hospital, Chilakaluripet, Andhra Pradesh 522616</p>
           <p><strong>Services Provided In:</strong> Chilakaluripet, Guntur, Palnadu, Prakasam.</p>
         </div>
         
