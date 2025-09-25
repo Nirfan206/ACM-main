@@ -121,7 +121,7 @@ function ServicesPage() {
       <footer style={{ background: themeText, color: themeWhite, padding: '1.5rem 0', textAlign: 'center' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto', fontSize: '1rem' }}>
           <div style={{ marginBottom: '0.5rem' }}>
-            <span style={{ fontWeight: 'bold' }}>Address:</span> అత్తర్ అల్లాహ్ బక్ష్ నగర్ (Attar Allah Baksh Nagar), 2వ లైను (2nd Line గవవర్నమెంట్ హాస్పిటల్ ప్రక్కన, Chirala Rd, beside Government Hospital, Chilakaluripet
+            <span style={{ fontWeight: 'bold' }}>Address:</span> అత్తర్ అల్లాహ్ బక్ష్ నగర్ (Attar Allah Baksh Nagar), 2వ లైను (2nd Line) గవవర్నమెంట్ హాస్పిటల్ ప్రక్కన, Chirala Rd, beside Government Hospital, Chilakaluripet
           </div>
           <div style={{ marginBottom: '0.5rem' }}>
             <span style={{ fontWeight: 'bold' }}>Services Provided In:</span> Chilakaluripet, Guntur, Palnadu, Prakasam.
