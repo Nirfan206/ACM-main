@@ -127,7 +127,7 @@ function ServicesPage() {
             <span style={{ fontWeight: 'bold' }}>Services Provided In:</span> Chilakaluripet, Guntur, Palnadu, Prakasam.
           </div>
           <div style={{ marginBottom: '0.5rem' }}>
-            <span style={{ fontWeight: 'bold' }}>Owner:</span> Shaik Mohammad Rafi
+              <span style={{ fontWeight: 'bold' }}>Prop:</span> SRK & SMR
           </div>
           <div style={{ marginBottom: '0.5rem' }}>
             <span style={{ fontWeight: 'bold' }}>Customer Care Number:</span> 9966972228
