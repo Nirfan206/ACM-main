@@ -16,7 +16,7 @@ const Header = () => {
         {/* This div groups the images and logo together */}
         <div className="logo-group">
           <img 
-            src="/1.jpg" 
+            src="/2.jpg" 
             alt="Proprietor" 
             className="header-passport-image" 
           />
@@ -30,7 +30,7 @@ const Header = () => {
           </Link>
           
           <img 
-            src="/2.jpg" 
+            src="/1.jpg" 
             alt="Proprietor" 
             className="header-passport-image" 
           />
