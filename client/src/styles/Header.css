@@ -4,7 +4,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  background-color: #fff; /* White background */
+  background-color: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   padding: 10px 0;
@@ -18,17 +18,17 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-  gap: 15px; /* Adds space between elements */
+  gap: 15px;
 }
 
-/* --- STYLES FOR THE NEW IMAGES --- */
+/* Styles for the new passport-sized images */
 .header-passport-image {
   width: 60px;
   height: 60px;
   object-fit: cover;
-  border-radius: 50%; /* Makes the image circular */
-  border: 2px solid #16a34a; /* Green border */
-  flex-shrink: 0; /* Prevents images from shrinking */
+  border-radius: 50%;
+  border: 2px solid #16a34a;
+  flex-shrink: 0;
 }
 
 /* Logo and company name container */
@@ -42,7 +42,6 @@
 .company-logo {
   height: 50px;
   width: auto;
-  border-radius: 8px;
 }
 
 .logo-text-container {
@@ -52,74 +51,64 @@
 
 .company-name {
   font-weight: bold;
-  color: #16a34a; /* Green primary color */
-  font-size: 1.5rem; /* Adjusted for better balance */
-  line-height: 1.2;
+  font-size: 1.4rem;
+  color: #16a34a;
+  white-space: nowrap; /* Prevents name from breaking into two lines */
 }
 
 .company-tagline {
-  font-size: 0.8rem;
-  color: #6b7280; /* Light text color */
+  font-size: 0.75rem;
+  color: #6b7280;
+  white-space: nowrap;
 }
 
 /* Navigation links container */
 .main-nav {
   display: flex;
+  align-items: center;
   gap: 25px;
 }
 
 .nav-link {
   text-decoration: none;
-  color: #374151; /* Dark text color */
-  font-weight: 600;
-  font-size: 1rem;
+  color: #374151;
+  font-weight: 500;
   padding: 5px 0;
-  position: relative;
-  transition: color 0.3s ease;
+  white-space: nowrap;
 }
 
-.nav-link:hover {
-  color: #0ea5e9; /* Blue secondary color on hover */
-}
-
-.nav-link.active {
-  color: #16a34a; /* Green primary color for active link */
-}
-
-.nav-link.active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: #16a34a;
-}
-
-/* --- CORRECTED STYLES FOR MOBILE DEVICES --- */
+/* --- STYLES FOR MOBILE DEVICES --- */
 @media (max-width: 768px) {
-  /* Keep it as a row but allow wrapping if needed */
   .header-container {
-    flex-wrap: wrap;
-    justify-content: center; /* Center items on mobile */
+    justify-content: center; /* Center the logo and images */
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
   }
-  
-  /* Hide the passport images on small screens to save space */
+
+  /* Make the passport images smaller on mobile */
   .header-passport-image {
-    display: none;
+    width: 45px;
+    height: 45px;
   }
   
-  .logo-link {
-    margin-bottom: 10px;
+  .company-logo {
+    height: 40px;
   }
 
   .company-name {
-    font-size: 1.2rem; /* Adjust font for smaller screens */
+    font-size: 1.1rem;
   }
   
+  .company-tagline {
+    font-size: 0.65rem;
+  }
+
+  /* Make the navigation bar take the full width and center its items */
   .main-nav {
     width: 100%;
-    justify-content: center; /* Center nav links */
+    justify-content: center;
     gap: 15px;
+    margin-top: 10px; /* Add some space above the nav links */
+    border-top: 1px solid #eee;
+    padding-top: 10px;
   }
 }
