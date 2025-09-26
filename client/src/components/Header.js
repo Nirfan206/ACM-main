@@ -1,5 +1,3 @@
-// client/src/components/Header.js
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../styles/Header.css';
@@ -15,27 +13,28 @@ const Header = () => {
     <header className="main-header">
       <div className="header-container">
 
-        {/* --- 1. ADD THE LEFT IMAGE --- */}
-        <img 
-          src="/1.jpg" 
-          alt="Proprietor" 
-          className="header-passport-image" 
-        />
+        {/* This div groups the images and logo together */}
+        <div className="logo-group">
+          <img 
+            src="/1.jpg" 
+            alt="Proprietor" 
+            className="header-passport-image" 
+          />
 
-        <Link to="/" className="logo-link">
-          <img src="/logo.jpg" alt="AL CHAAN MEERA Logo" className="company-logo" />
-          <div className="logo-text-container">
-            <span className="company-name">AL CHAAN MEERA</span>
-            <span className="company-tagline">(Air Conditioning & Maintenance Company)</span>
-          </div>
-        </Link>
-        
-        {/* --- 2. ADD THE RIGHT IMAGE --- */}
-        <img 
-          src="/2.jpg" 
-          alt="Proprietor" 
-          className="header-passport-image" 
-        />
+          <Link to="/" className="logo-link">
+            <img src="/logo.jpg" alt="AL CHAAN MEERA Logo" className="company-logo" />
+            <div className="logo-text-container">
+              <span className="company-name">AL CHAAN MEERA</span>
+              <span className="company-tagline">(Air Conditioning & Maintenance Company)</span>
+            </div>
+          </Link>
+          
+          <img 
+            src="/2.jpg" 
+            alt="Proprietor" 
+            className="header-passport-image" 
+          />
+        </div>
 
         <nav className="main-nav">
           <Link to="/" className={`nav-link ${isActive('/')}`}>Home</Link>
