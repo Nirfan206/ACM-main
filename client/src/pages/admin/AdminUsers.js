@@ -20,14 +20,8 @@ function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const locations = [
-    "Guntur",
-    "Prakasam",
-    "Krishna",
-    "Vijayawada",
-    "Nellore",
-    "Ongole",
-    "Tenali",
-    "Narasaraopet"
+    "Guntur", "Prakasam", "Krishna", "Vijayawada", "Nellore",
+    "Ongole", "Tenali", "Narasaraopet"
   ];
 
   const roleDisplayMap = {
@@ -56,17 +50,13 @@ function AdminUsers() {
       setUsers(data || []);
     } catch (err) {
       console.error("Fetch failed", err);
-      setSubmitError(
-        err.response?.data?.message ||
-          "Failed to load users. Please check your connection or login again."
-      );
+      setSubmitError(err.response?.data?.message || "Failed to load users.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // Initial fetch only; no timers/auto reloads
     fetchUsers();
   }, []);
 
@@ -87,12 +77,7 @@ function AdminUsers() {
     } else {
       setEditingUser(null);
       setForm({
-        name: "",
-        email: "",
-        phone: "",
-        password: "",
-        role: activeTab,
-        address: ""
+        name: "", email: "", phone: "", password: "", role: activeTab, address: ""
       });
     }
     setShowModal(true);
@@ -104,19 +89,13 @@ function AdminUsers() {
   };
 
   const saveUser = async (e) => {
-    // Ensure modal form never reloads the page
-    if (e?.preventDefault) e.preventDefault(); // prevents default browser submit
+    if (e?.preventDefault) e.preventDefault();
     setSubmitError("");
     setSubmitSuccess("");
 
     try {
-      // Validation
-      if (!form.name.trim()) {
-        setSubmitError("Name is required");
-        return;
-      }
-      if (!form.phone.trim()) {
-        setSubmitError("Phone number is required");
+      if (!form.name.trim() || !form.phone.trim()) {
+        setSubmitError("Name and Phone are required");
         return;
       }
       if (!/^\d{10}$/.test(form.phone.trim())) {
@@ -137,15 +116,7 @@ function AdminUsers() {
       }
 
       const token = sessionStorage.getItem("token");
-      if (!token) {
-        setSubmitError("You must be logged in");
-        return;
-      }
-
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      };
+      const headers = { Authorization: `Bearer ${token}` };
 
       const userData = {
         phone: form.phone.trim(),
@@ -160,30 +131,19 @@ function AdminUsers() {
 
       if (editingUser) {
         await api.put(`/api/admin/users/${editingUser._id}`, userData, { headers });
-
-        // Optimistic update
-        setUsers((prev) =>
-          prev.map((u) => (u._id === editingUser._id ? { ...u, ...userData } : u))
-        );
         setSubmitSuccess("User updated successfully");
       } else {
-        const res = await api.post("/api/admin/users", userData, { headers });
-        const created = res.data;
+        await api.post("/api/admin/users", userData, { headers });
         setSubmitSuccess("User created successfully");
-
-        // Optimistic append if API returns created user; else refresh
-        if (created && created._id) {
-          setUsers((prev) => [created, ...prev]);
-        } else {
-          await fetchUsers();
-        }
       }
-
+      
       setShowModal(false);
+      await fetchUsers(); // Always refetch after saving for consistency
       setTimeout(() => setSubmitSuccess(""), 3000);
+
     } catch (error) {
       console.error("Error saving user:", error);
-      setSubmitError(error.response?.data?.message || error.message);
+      setSubmitError(error.response?.data?.message || "Failed to save user.");
     }
   };
 
@@ -194,22 +154,16 @@ function AdminUsers() {
 
     try {
       const token = sessionStorage.getItem("token");
-      if (!token) {
-        setSubmitError("Authentication required. Please log in.");
-        return;
-      }
-
       await api.delete(`/api/admin/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      // Optimistic remove
       setUsers((prev) => prev.filter((u) => u._id !== id));
       setSubmitSuccess("User deleted successfully");
       setTimeout(() => setSubmitSuccess(""), 3000);
     } catch (err) {
       console.error("Delete failed", err);
-      setSubmitError(`Error deleting user: ${err.response?.data?.message || "Unknown error"}`);
+      setSubmitError(err.response?.data?.message || "Error deleting user.");
     }
   };
 
@@ -218,9 +172,11 @@ function AdminUsers() {
   const filteredUsers = users.filter(
     (u) =>
       u.role === activeTab &&
-      ((u.profile?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (
+        (u.profile?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
         (u.phone || "").includes(searchTerm) ||
-        (u.profile?.email || "").toLowerCase().includes(searchTerm.toLowerCase()))
+        (u.profile?.email || "").toLowerCase().includes(searchTerm.toLowerCase())
+      )
   );
 
   return (
