@@ -10,7 +10,7 @@
   padding: 10px 0;
 }
 
-/* Flexbox container to align all items in a row */
+/* Main flex container */
 .header-container {
   display: flex;
   align-items: center;
@@ -21,7 +21,14 @@
   gap: 15px;
 }
 
-/* Styles for the new passport-sized images */
+/* --- NEW: Group for logo and passport images --- */
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Styles for the passport images */
 .header-passport-image {
   width: 60px;
   height: 60px;
@@ -31,44 +38,39 @@
   flex-shrink: 0;
 }
 
-/* Logo and company name container */
+/* Logo link and text styles */
 .logo-link {
   display: flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
 }
-
 .company-logo {
   height: 50px;
   width: auto;
 }
-
 .logo-text-container {
   display: flex;
   flex-direction: column;
 }
-
 .company-name {
   font-weight: bold;
   font-size: 1.4rem;
   color: #16a34a;
-  white-space: nowrap; /* Prevents name from breaking into two lines */
+  white-space: nowrap;
 }
-
 .company-tagline {
   font-size: 0.75rem;
   color: #6b7280;
   white-space: nowrap;
 }
 
-/* Navigation links container */
+/* Navigation styles */
 .main-nav {
   display: flex;
   align-items: center;
   gap: 25px;
 }
-
 .nav-link {
   text-decoration: none;
   color: #374151;
@@ -77,38 +79,40 @@
   white-space: nowrap;
 }
 
-/* --- STYLES FOR MOBILE DEVICES --- */
+/* --- CORRECTED STYLES FOR MOBILE --- */
 @media (max-width: 768px) {
   .header-container {
-    justify-content: center; /* Center the logo and images */
-    flex-wrap: wrap; /* Allow items to wrap to the next line */
+    flex-direction: column; /* Stack logo group and nav vertically */
+    justify-content: center;
+    gap: 10px;
   }
 
-  /* Make the passport images smaller on mobile */
+  .logo-group {
+    width: 100%;
+    justify-content: center; /* Center the items within the logo group */
+  }
+
+  /* Make images and logo smaller on mobile */
   .header-passport-image {
     width: 45px;
     height: 45px;
   }
-  
   .company-logo {
     height: 40px;
   }
-
   .company-name {
     font-size: 1.1rem;
   }
-  
   .company-tagline {
-    font-size: 0.65rem;
+    display: none; /* Hide tagline on mobile to save space */
   }
 
-  /* Make the navigation bar take the full width and center its items */
+  /* Navigation bar on mobile */
   .main-nav {
     width: 100%;
     justify-content: center;
     gap: 15px;
-    margin-top: 10px; /* Add some space above the nav links */
-    border-top: 1px solid #eee;
     padding-top: 10px;
+    border-top: 1px solid #eee;
   }
 }
