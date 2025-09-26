@@ -17,7 +17,7 @@ const Header = () => {
 
         {/* --- 1. ADD THE LEFT IMAGE --- */}
         <img 
-          src="/left-image.jpg" 
+          src="/1.jpg" 
           alt="Proprietor" 
           className="header-passport-image" 
         />
@@ -32,7 +32,7 @@ const Header = () => {
         
         {/* --- 2. ADD THE RIGHT IMAGE --- */}
         <img 
-          src="/right-image.jpg" 
+          src="/2.jpg" 
           alt="Proprietor" 
           className="header-passport-image" 
         />
