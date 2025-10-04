@@ -173,10 +173,11 @@ function CustomerBookings() {
       );
       
       // --- START: GOOGLE ADS CONVERSION TRACKING ---
-      // IMPORTANT: You MUST replace the placeholder below with your unique Event Snippet ID from Google Ads.
+      // This block sends a signal to Google Ads when a booking is successfully submitted.
       if (typeof window.gtag === 'function') {
+        // IMPORTANT: Replace the example ID below with YOUR unique Event Snippet ID.
         window.gtag('event', 'conversion', {
-            'send_to': 'AW-11210667972/PASTE_YOUR_UNIQUE_ID_HERE' 
+            'send_to': 'AW-11210667972/AbC-D_efG-h1234567' // <-- REPLACE THIS WITH YOUR REAL ID FROM GOOGLE ADS
         });
         console.log("Google Ads Conversion signal sent for a new booking.");
       }
@@ -200,7 +201,7 @@ function CustomerBookings() {
         address: customerProfile?.profile?.address || ""
       });
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err) {
+    } catch (err)
       console.error("Error creating booking:", err);
       setError(err.response?.data?.message || "Failed to create booking. Please try again.");
       setTimeout(() => setError(null), 3000);
@@ -436,3 +437,4 @@ function CustomerBookings() {
 }
 
 export default CustomerBookings;
+
