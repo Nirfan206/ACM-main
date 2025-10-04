@@ -201,7 +201,7 @@ function CustomerBookings() {
         address: customerProfile?.profile?.address || ""
       });
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err)
+    } catch (err) {
       console.error("Error creating booking:", err);
       setError(err.response?.data?.message || "Failed to create booking. Please try again.");
       setTimeout(() => setError(null), 3000);
