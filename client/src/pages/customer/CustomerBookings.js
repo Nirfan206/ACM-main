@@ -99,7 +99,6 @@ function CustomerBookings() {
   };
 
   useEffect(() => {
-    // Initial fetch only; removed 5s polling interval
     fetchData();
   }, [navigate]);
 
@@ -113,7 +112,6 @@ function CustomerBookings() {
       await api.delete(`/api/customer/bookings/${bookingId}`, { headers });
 
       setSuccess("Booking cancelled successfully!");
-      // Optimistic update
       setBookings((prev) => prev.filter((b) => b._id !== bookingId));
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
@@ -173,8 +171,17 @@ function CustomerBookings() {
         },
         { headers }
       );
+      
+      // --- START: GOOGLE ADS CONVERSION TRACKING ---
+      // IMPORTANT: You MUST replace the placeholder below with your unique Event Snippet ID from Google Ads.
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'conversion', {
+            'send_to': 'AW-11210667972/PASTE_YOUR_UNIQUE_ID_HERE' 
+        });
+        console.log("Google Ads Conversion signal sent for a new booking.");
+      }
+      // --- END: GOOGLE ADS CONVERSION TRACKING ---
 
-      // Optimistic prepend of new booking if API returns it; otherwise refetch.
       const created = res.data;
       if (created && created._id) {
         setBookings((prev) => [created, ...prev]);
